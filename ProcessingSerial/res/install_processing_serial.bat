@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=./modes/java/libraries/serial/library/serial.jar -DgroupId=org.processing -DartifactId=serial -Dversion=1.5.1 -Dpackaging=jar -DgeneratePom=true

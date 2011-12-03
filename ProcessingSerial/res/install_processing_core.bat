@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=./lib/core.jar -DgroupId=org.processing -DartifactId=core -Dversion=1.5.1 -Dpackaging=jar -DgeneratePom=true
