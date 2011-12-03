@@ -38,14 +38,14 @@ import java.util.*;
  *
  * @webref
  */
-public class IndepProcessingSerial implements SerialPortEventListener, ISerial {
+public class IndepProcessingSerial implements SerialPortEventListener {
 
     /**
      * Bytes received event listener
      * (according to buffer() and bufferUntil() settings)
      */
     public interface Listener {
-        void onDataReceived(ISerial serial);
+        void onDataReceived(IndepProcessingSerial serial);
     }
 
     // properties can be passed in for default values
