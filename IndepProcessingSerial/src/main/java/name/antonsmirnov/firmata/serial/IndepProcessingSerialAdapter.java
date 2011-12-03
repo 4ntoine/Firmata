@@ -7,7 +7,7 @@ import java.util.Properties;
 /**
  * "ISerial" adapter for RXTX "Serial" class
  */
-public class IndepProcessingSeriaAdapter implements ISerial {
+public class IndepProcessingSerialAdapter implements ISerial {
 
     private IndepProcessingSerial indepProcessingSerial;
 
@@ -15,7 +15,7 @@ public class IndepProcessingSeriaAdapter implements ISerial {
         return indepProcessingSerial;
     }
 
-    public IndepProcessingSeriaAdapter(IndepProcessingSerial indepProcessingSerial) {
+    public IndepProcessingSerialAdapter(IndepProcessingSerial indepProcessingSerial) {
         this.indepProcessingSerial = indepProcessingSerial;
     }
 

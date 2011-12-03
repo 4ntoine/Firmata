@@ -22,7 +22,7 @@ public class RealSerialTest extends TestCase {
 
     @Test
     public void testWrite() {
-        serial = new IndepProcessingSeriaAdapter(new IndepProcessingSerial(PORT_NAME, PORT_BAUD_RATE));
+        serial = new IndepProcessingSerialAdapter(new IndepProcessingSerial(PORT_NAME, PORT_BAUD_RATE));
         try {
             serial.start();
             sleep();
