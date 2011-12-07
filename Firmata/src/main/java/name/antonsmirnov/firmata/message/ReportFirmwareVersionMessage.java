@@ -1,0 +1,28 @@
+package name.antonsmirnov.firmata.message;
+
+/**
+ * Firmware name/version
+ */
+public class ReportFirmwareVersionMessage extends SysexMessage {
+
+    // it's not good idea to use Sysex command to add ReportFirmwareVersion message,
+    // because it introduces domain operation in protocol, but it's implemented so be Firmata developers
+    public static final int COMMAND = 0x79;
+
+    public ReportFirmwareVersionMessage() {
+        super(COMMAND, null);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+
+        return obj instanceof ReportFirmwareVersionMessage;
+    }
+
+    @Override
+    public String toString() {
+        return "ReportFirmwareVersionMessage[]";
+    }
+}

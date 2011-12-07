@@ -1,63 +1,84 @@
 package name.antonsmirnov.firmata;
 
+import name.antonsmirnov.firmata.deserializer.*;
+import name.antonsmirnov.firmata.message.*;
 import name.antonsmirnov.firmata.serial.ISerial;
+import name.antonsmirnov.firmata.serializer.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static name.antonsmirnov.firmata.BytesHelper.DECODE_COMMAND;
 
 /**
  * Plain Java Firmata impl
  */
 public class Firmata {
 
-    /**
-     * Constant to set a pin to input mode (in a call to pinMode()).
-     */
-    public static final int INPUT = 0;
-    /**
-     * Constant to set a pin to output mode (in a call to pinMode()).
-     */
-    public static final int OUTPUT = 1;
-    /**
-     * Constant to set a pin to analog mode (in a call to pinMode()).
-     */
-    public static final int ANALOG = 2;
-    /**
-     * Constant to set a pin to PWM mode (in a call to pinMode()).
-     */
-    public static final int PWM = 3;
-    /**
-     * Constant to set a pin to servo mode (in a call to pinMode()).
-     */
-    public static final int SERVO = 4;
-    /**
-     * Constant to set a pin to shiftIn/shiftOut mode (in a call to pinMode()).
-     */
-    public static final int SHIFT = 5;
-    /**
-     * Constant to set a pin to I2C mode (in a call to pinMode()).
-     */
-    public static final int I2C = 6;
+    private static final int BUFFER_SIZE = 64;
 
     /**
-     * Constant to write a high value (+5 volts) to a pin (in a call to
-     * digitalWrite()).
+     * Listener for incoming messages from Arduino board
      */
-    public static final int LOW = 0;
+    public static interface Listener {
+
+        /**
+         * AnalogMessage received event
+         * @param message
+         */
+        void onAnalogMessageReceived(AnalogMessage message);
+
+        /**
+         * DigitalMessage received event
+         * @param message
+         */
+        void onDigitalMessageReceived(DigitalMessage message);
+
+        /**
+         * FirmwareVersionMessage received event
+         * @param message
+         */
+        void onFirmwareVersionMessageReceived(FirmwareVersionMessage message);
+
+        /**
+         *  ProtocolVersionMessage received event
+         * @param message
+         */
+        void onProtocolVersionMessageReceived(ProtocolVersionMessage message);
+
+        /**
+         * SysexMessage received (NOT KNOWN SysexMessage inherited commands like ReportFirmwareVersionMessage, StringSysexMessage, etc)
+         *
+         * @param message
+         */
+        void onSysexMessageReceived(SysexMessage message);
+
+        /**
+         * StringSysexMessage received event
+         */
+        void onStringSysexMessageReceived(StringSysexMessage message);
+
+        /**
+         * Unknown byte received (no active Deserializers)
+         * @param byteValue
+         */
+        void onUnknownByteReceived(int byteValue);
+    }
+
     /**
-     * Constant to write a low value (0 volts) to a pin (in a call to
-     * digitalWrite()).
+     * Listener stub
      */
-    public static final int HIGH = 1;
-
-    private final int MAX_DATA_BYTES = 32;
-
-    private final int DIGITAL_MESSAGE = 0x90; // send data for a digital port
-    private final int ANALOG_MESSAGE = 0xE0;  // send data for an analog pin (or PWM)
-    private final int REPORT_ANALOG = 0xC0;   // enable analog input by pin #
-    private final int REPORT_DIGITAL = 0xD0;  // enable digital input by port
-    private final int SET_PIN_MODE = 0xF4;    // set a pin to INPUT/OUTPUT/PWM/etc
-    private final int REPORT_VERSION = 0xF9;  // report firmware version
-    private final int SYSTEM_RESET = 0xFF;    // reset from MIDI
-    private final int START_SYSEX = 0xF0;     // start a MIDI SysEx message
-    private final int END_SYSEX = 0xF7;       // end a MIDI SysEx message
+    public static class StubListener implements Listener {
+        public void onAnalogMessageReceived(AnalogMessage message) {}
+        public void onDigitalMessageReceived(DigitalMessage message) {}
+        public void onFirmwareVersionMessageReceived(FirmwareVersionMessage message) {}
+        public void onProtocolVersionMessageReceived(ProtocolVersionMessage message) {}
+        public void onSysexMessageReceived(SysexMessage message) {}
+        public void onStringSysexMessageReceived(StringSysexMessage message) {}
+        public void onUnknownByteReceived(int byteValue) {}
+    }
 
     private ISerial serial;
 
@@ -69,30 +90,61 @@ public class Firmata {
         this.serial = serial;
     }
 
-    int waitForData = 0;
-    int executeMultiByteCommand = 0;
-    int multiByteChannel = 0;
-    int[] storedInputData = new int[MAX_DATA_BYTES];
-    boolean parsingSysex;
-    int sysexBytesRead;
-
-    int[] digitalOutputData = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int[] digitalInputData = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int[] analogInputData = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    int majorVersion = 0;
-    int minorVersion = 0;
-
-    /**
-     * Create a Firmata
-     */
     public Firmata() {
+        initSerializers();
+        initDeserializers();
+    }
+
+    private Listener listener;
+
+    public Listener getListener() {
+        return listener;
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    private static Map<Class<? extends Message>, IMessageSerializer> serializers;
+
+    private void initSerializers() {
+        serializers = new HashMap<Class<? extends Message>, IMessageSerializer>();
+
+        serializers.put(AnalogMessage.class, new AnalogMessageSerializer());
+        serializers.put(DigitalMessage.class, new DigitalMessageSerializer());
+        serializers.put(ReportAnalogPinMessage.class, new ReportAnalogPinMessageSerializer());
+        serializers.put(ReportDigitalPortMessage.class, new ReportDigitalPortMessageSerializer());
+        serializers.put(ReportProtocolVersionMessage.class, new ReportProtocolVersionMessageSerializer());
+        serializers.put(SetPinModeMessage.class, new SetPinModeMessageSerializer());
+        serializers.put(SystemResetMessage.class, new SystemResetMessageSerializer());
+
+        // sysex messages
+        SysexMessageSerializer sysexMessageSerializer = new SysexMessageSerializer();
+        serializers.put(SysexMessage.class, sysexMessageSerializer);
+        serializers.put(StringSysexMessage.class, sysexMessageSerializer);
+        serializers.put(ReportFirmwareVersionMessage.class, sysexMessageSerializer);
+    }
+
+    private static List<IMessageDeserializer> deserializers;
+
+    private IMessageDeserializer activeDeserializer;
+
+    private void initDeserializers() {
+        deserializers = new ArrayList<IMessageDeserializer>();
+        potentialDeserializers = new ArrayList<IMessageDeserializer>();
+
+        deserializers.add(new AnalogMessageDeserializer());
+        deserializers.add(new DigitalMessageDeserializer());
+        deserializers.add(new FirmwareVersionMessageDeserializer());
+        deserializers.add(new ProtocolVersionMessageDeserializer());
+        deserializers.add(new SysexMessageDeserializer());
+        deserializers.add(new StringSysexMessageDeserializer());
     }
 
     /**
-     * Create a Firmata
+     * Constructor
      *
-     * @param serial  concrete ISerial implementation
+     * @param serial specify concrete ISerial implementation
      */
     public Firmata(ISerial serial) {
         this();
@@ -100,131 +152,103 @@ public class Firmata {
     }
 
     /**
-     * Returns the last known value read from the digital pin: HIGH or LOW.
-     *
-     * @param pin the digital pin whose value should be returned (from 2 to 13,
-     *            since pins 0 and 1 are used for serial communication)
+     * Send message to Arduino board
+     * @param message concrete outcoming message
      */
-    public int digitalRead(int pin) {
-        return (digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01;
+    public void write(Message message) {
+        IMessageSerializer serializer = serializers.get(message.getClass());
+        if (serializer == null)
+            throw new RuntimeException("Unknown message type: " + message.getClass());
+
+        serializer.writeToSerial(message, serial);
     }
 
-    /**
-     * Returns the last known value read from the analog pin: 0 (0 volts) to
-     * 1023 (5 volts).
-     *
-     * @param pin the analog pin whose value should be returned (from 0 to 5)
-     */
-    public int analogRead(int pin) {
-        return analogInputData[pin];
+    private List<IMessageDeserializer> potentialDeserializers;
+
+    private byte[] buffer = new byte[BUFFER_SIZE];
+
+    private int bufferLength;
+
+    private Message lastReceivedMessage;
+
+    public Message getLastReceivedMessage() {
+        return lastReceivedMessage;
     }
 
-    /**
-     * Set a digital pin to input or output mode.
-     *
-     * @param pin  the pin whose mode to set (from 2 to 13)
-     * @param mode either Arduino.INPUT or Arduino.OUTPUT
-     */
-    public void pinMode(int pin, int mode) {
-        serial.write(SET_PIN_MODE);
-        serial.write(pin);
-        serial.write(mode);
-    }
+    public void onDataReceived(int incomingByte) {
+        buffer[bufferLength++] = (byte)incomingByte;
 
-    /**
-     * Write to a digital pin (the pin must have been put into output mode with
-     * pinMode()).
-     *
-     * @param pin   the pin to write to (from 2 to 13)
-     * @param value the value to write: Arduino.LOW (0 volts) or Arduino.HIGH
-     *              (5 volts)
-     */
-    public void digitalWrite(int pin, int value) {
-        int portNumber = (pin >> 3) & 0x0F;
+        if (activeDeserializer == null) {
+            // new message byte is received
+            int command = DECODE_COMMAND(incomingByte);
 
-        if (value == 0)
-            digitalOutputData[portNumber] &= ~(1 << (pin & 0x07));
-        else
-            digitalOutputData[portNumber] |= (1 << (pin & 0x07));
-
-        serial.write(DIGITAL_MESSAGE | portNumber);
-        serial.write(digitalOutputData[portNumber] & 0x7F);
-        serial.write(digitalOutputData[portNumber] >> 7);
-    }
-
-    /**
-     * Write an analog value (PWM-wave) to a digital pin.
-     *
-     * @param pin the pin to write to (must be 9, 10, or 11, as those are they
-     *            only ones which support hardware pwm)
-     * @param value: 0 being the lowest (always off), and 255 the highest
-     *            (always on)
-     */
-    public void analogWrite(int pin, int value) {
-        pinMode(pin, PWM);
-        serial.write(ANALOG_MESSAGE | (pin & 0x0F));
-        serial.write(value & 0x7F);
-        serial.write(value >> 7);
-    }
-
-    private void setDigitalInputs(int portNumber, int portData) {
-        digitalInputData[portNumber] = portData;
-    }
-
-    private void setAnalogInput(int pin, int value) {
-        analogInputData[pin] = value;
-    }
-
-    private void setVersion(int majorVersion, int minorVersion) {
-        this.majorVersion = majorVersion;
-        this.minorVersion = minorVersion;
-    }
-
-    private void processInput() {
-        int inputData = serial.read();
-        int command;
-
-        if (parsingSysex) {
-            if (inputData == END_SYSEX) {
-                parsingSysex = false;
-                //processSysexMessage();
+            if (potentialDeserializers.size() == 0) {
+                // first byte check
+                findPotentialDeserializers(command);
             } else {
-                storedInputData[sysexBytesRead] = inputData;
-                sysexBytesRead++;
+                // not first byte check
+                // few potential deserializers found, so we should check the next bytes to define Deserializer
+                filterPotentialDeserializers(command);
             }
-        } else if (waitForData > 0 && inputData < 128) {
-            waitForData--;
-            storedInputData[waitForData] = inputData;
 
-            if (executeMultiByteCommand != 0 && waitForData == 0) {
-                //we got everything
-                switch (executeMultiByteCommand) {
-                    case DIGITAL_MESSAGE:
-                        setDigitalInputs(multiByteChannel, (storedInputData[0] << 7) + storedInputData[1]);
-                        break;
-                    case ANALOG_MESSAGE:
-                        setAnalogInput(multiByteChannel, (storedInputData[0] << 7) + storedInputData[1]);
-                        break;
-                    case REPORT_VERSION:
-                        setVersion(storedInputData[1], storedInputData[0]);
-                        break;
-                }
-            }
+            tryHandle();
+
         } else {
-            if (inputData < 0xF0) {
-                command = inputData & 0xF0;
-                multiByteChannel = inputData & 0x0F;
-            } else {
-                command = inputData;
-                // commands in the 0xF* range don't use channel data
+            // continue handling with activeDeserializer
+            activeDeserializer.handle(buffer, bufferLength);
+
+            if (activeDeserializer.finishedHandling()) {
+                // message is ready
+                lastReceivedMessage = activeDeserializer.getMessage();
+                activeDeserializer.fireEvent(listener);
+                reinitBuffer();
             }
-            switch (command) {
-                case DIGITAL_MESSAGE:
-                case ANALOG_MESSAGE:
-                case REPORT_VERSION:
-                    waitForData = 2;
-                    executeMultiByteCommand = command;
-                    break;
+        }
+    }
+
+    // pass the next bytes in order to define according deserializer
+    private void filterPotentialDeserializers(int command) {
+        List<IMessageDeserializer> newPotentialDeserializers = new ArrayList<IMessageDeserializer>();
+
+        for (IMessageDeserializer eachPotentialDeserializer : potentialDeserializers)
+            if (eachPotentialDeserializer.canHandle(buffer, bufferLength, command))
+                newPotentialDeserializers.add(eachPotentialDeserializer);
+
+        potentialDeserializers = newPotentialDeserializers;
+    }
+
+    private void tryHandle() {
+        int potentialDeserializersCount = potentialDeserializers.size();
+        switch (potentialDeserializersCount) {
+
+            // unknown byte
+            case 0:
+                for (int i=0; i<bufferLength; i++)
+                    listener.onUnknownByteReceived(buffer[i]);
+                reinitBuffer();
+                break;
+
+            // the only one deserializer
+            case 1:
+                activeDeserializer = potentialDeserializers.get(0);
+                activeDeserializer.startHandling();
+                break;
+
+            // default:
+            //  (in case if few serializers are found, we should pass the next bytes to define final deserializer)
+        }
+    }
+
+    private void reinitBuffer() {
+        bufferLength = 0;
+        activeDeserializer = null;
+        potentialDeserializers.clear();
+    }
+
+    private void findPotentialDeserializers(int command) {
+        for (IMessageDeserializer eachDeserializer : deserializers) {
+            if (eachDeserializer.canHandle(buffer, bufferLength, command)) {
+                potentialDeserializers.add(eachDeserializer);
             }
         }
     }

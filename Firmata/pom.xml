@@ -12,8 +12,15 @@
 
     <groupId>name.antonsmirnov.firmata</groupId>
     <artifactId>Firmata</artifactId>
-    <version>1.0</version>
+    <version>2.0</version>
     <name>Firmata</name>
+
+    <developers>
+        <developer>
+            <name>Anton Smirnov</name>
+            <email>dev@antonsmirnov.name</email>
+        </developer>
+    </developers>
 
     <description>Firmata implementation (with Serial API dependency and with no impl dependency)</description>
 
@@ -22,6 +29,13 @@
             <groupId>name.antonsmirnov.firmata.serial</groupId>
 			<artifactId>Serial</artifactId>
 			<version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
