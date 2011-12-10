@@ -3,8 +3,6 @@ package name.antonsmirnov.firmata.tests;
 import name.antonsmirnov.firmata.message.DigitalMessage;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 /**
  * Test for DigitalMessage
  */
@@ -20,7 +18,7 @@ public class DigitalMessageTest extends BaseFirmataTest {
                 // new Firmata impl
                 serial.clear();
                 DigitalMessage message = new DigitalMessage(port, value);
-                firmata.write(message);
+                firmata.send(message);
                 final byte[] newOutput = serial.getOutputStream().toByteArray();
 
                 assertNotNull(newOutput);
@@ -35,7 +33,7 @@ public class DigitalMessageTest extends BaseFirmataTest {
                 // create output
                 serial.clear();
                 DigitalMessage outcomingMessage = new DigitalMessage(port, value);
-                firmata.write(outcomingMessage);
+                firmata.send(outcomingMessage);
                 final byte[] newOutput = serial.getOutputStream().toByteArray();
 
                 // feed output to input

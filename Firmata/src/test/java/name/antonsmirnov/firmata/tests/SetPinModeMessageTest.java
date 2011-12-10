@@ -4,7 +4,6 @@ import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Date;
 
 /**
  * Test for SetPinModeMessage
@@ -27,7 +26,7 @@ public class SetPinModeMessageTest extends BaseFirmataTest {
                 // new Firmata impl
                 serial.clear();
                 SetPinModeMessage message = new SetPinModeMessage(pin, mode);
-                firmata.write(message);
+                firmata.send(message);
                 final byte[] newOutput = serial.getOutputStream().toByteArray();
 
                 assertTrue(message.toString(), Arrays.equals(oldOutput, newOutput));

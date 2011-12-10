@@ -51,12 +51,12 @@ public class OriginalFirmata {
     public static final int I2C = 6;
 
     /**
-     * Constant to write a high value (+5 volts) to a pin (in a call to
+     * Constant to send a high value (+5 volts) to a pin (in a call to
      * digitalWrite()).
      */
     public static final int LOW = 0;
     /**
-     * Constant to write a low value (0 volts) to a pin (in a call to
+     * Constant to send a low value (0 volts) to a pin (in a call to
      * digitalWrite()).
      */
     public static final int HIGH = 1;
@@ -123,8 +123,8 @@ public class OriginalFirmata {
      * Write to a digital pin (the pin must have been put into output mode with
      * pinMode()).
      *
-     * @param pin   the pin to write to (from 2 to 13)
-     * @param value the value to write: Arduino.LOW (0 volts) or Arduino.HIGH
+     * @param pin   the pin to send to (from 2 to 13)
+     * @param value the value to send: Arduino.LOW (0 volts) or Arduino.HIGH
      *              (5 volts)
      */
     public void digitalWrite(int pin, int value) {
@@ -143,7 +143,7 @@ public class OriginalFirmata {
     /**
      * Write an analog value (PWM-wave) to a digital pin.
      *
-     * @param pin the pin to write to (must be 9, 10, or 11, as those are they
+     * @param pin the pin to send to (must be 9, 10, or 11, as those are they
      *            only ones which support hardware pwm)
      * @param value: 0 being the lowest (always off), and 255 the highest
      *            (always on)

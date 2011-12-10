@@ -19,7 +19,7 @@ public class ReportDigitalPortMessageTest extends BaseFirmataTest {
     private void assertOk(int port, boolean enable) {
         serial.clear();
         ReportDigitalPortMessage message = new ReportDigitalPortMessage(port, enable);
-        firmata.write(message);
+        firmata.send(message);
         byte[] output = serial.getOutputStream().toByteArray();
 
         assertNotNull(output);

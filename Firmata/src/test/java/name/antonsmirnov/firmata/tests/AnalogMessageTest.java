@@ -27,8 +27,8 @@ public class AnalogMessageTest extends BaseFirmataTest {
 
                 // new Firmata impl
                 serial.clear();
-                firmata.write(new SetPinModeMessage(pin, SetPinModeMessage.PIN_MODE.PWM.getMode()));
-                firmata.write(new AnalogMessage(pin, value));
+                firmata.send(new SetPinModeMessage(pin, SetPinModeMessage.PIN_MODE.PWM.getMode()));
+                firmata.send(new AnalogMessage(pin, value));
                 final byte[] newOutput = serial.getOutputStream().toByteArray();
 
                 assertTrue(Arrays.equals(oldOutput, newOutput));
@@ -42,7 +42,7 @@ public class AnalogMessageTest extends BaseFirmataTest {
                 // create output
                 serial.clear();
                 AnalogMessage outcomingMessage = new AnalogMessage(pin, value);
-                firmata.write(outcomingMessage);
+                firmata.send(outcomingMessage);
                 final byte[] newOutput = serial.getOutputStream().toByteArray();
 
                 // feed output to input

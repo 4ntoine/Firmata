@@ -14,7 +14,7 @@ public class SysexMessageTest extends BaseFirmataTest {
     @Test
     public void testWriteRead() {
         serial.clear();
-        firmata.write(originalMessage);
+        firmata.send(originalMessage);
         byte[] output = serial.getOutputStream().toByteArray();
 
         serial.clear();

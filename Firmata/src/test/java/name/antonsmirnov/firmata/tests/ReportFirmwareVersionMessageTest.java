@@ -15,7 +15,7 @@ public class ReportFirmwareVersionMessageTest extends BaseFirmataTest {
     public void testSerialize() {
         serial.clear();
         ReportFirmwareVersionMessage message = new ReportFirmwareVersionMessage();
-        firmata.write(message);
+        firmata.send(message);
 
         byte[] expected_output = new byte[] {
                 (byte)SysexMessageSerializer.COMMAND_START,

@@ -153,9 +153,10 @@ public class Firmata {
 
     /**
      * Send message to Arduino board
+     *
      * @param message concrete outcoming message
      */
-    public void write(Message message) {
+    public void send(Message message) {
         IMessageSerializer serializer = serializers.get(message.getClass());
         if (serializer == null)
             throw new RuntimeException("Unknown message type: " + message.getClass());

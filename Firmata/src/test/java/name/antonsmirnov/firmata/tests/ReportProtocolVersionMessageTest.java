@@ -14,7 +14,7 @@ public class ReportProtocolVersionMessageTest extends BaseFirmataTest {
     @Test
     public void testWrite() {
         serial.clear();
-        firmata.write(new ReportProtocolVersionMessage());
+        firmata.send(new ReportProtocolVersionMessage());
 
         byte[] expected_output = new byte[] { (byte)ReportProtocolVersionMessageSerializer.COMMAND };
         byte[] actual_output = serial.getOutputStream().toByteArray();

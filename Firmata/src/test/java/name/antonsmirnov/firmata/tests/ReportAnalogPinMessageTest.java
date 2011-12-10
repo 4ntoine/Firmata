@@ -19,7 +19,7 @@ public class ReportAnalogPinMessageTest extends BaseFirmataTest {
     private void assertOk(int pin, boolean enable) {
         serial.clear();
         ReportAnalogPinMessage message = new ReportAnalogPinMessage(pin, enable);
-        firmata.write(message);
+        firmata.send(message);
         byte[] output = serial.getOutputStream().toByteArray();
 
         assertNotNull(output);

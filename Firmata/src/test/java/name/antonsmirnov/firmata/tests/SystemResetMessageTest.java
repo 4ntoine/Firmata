@@ -16,7 +16,7 @@ public class SystemResetMessageTest extends BaseFirmataTest {
     @Test
     public void testWrite() {
         serial.clear();
-        firmata.write(message);
+        firmata.send(message);
 
         byte[] expectedOutput = new byte[] { (byte)SystemResetMessageSerializer.COMMAND };
         byte[] actualOutput = serial.getOutputStream().toByteArray();
