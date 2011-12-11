@@ -36,6 +36,7 @@
 	<modules>
 		<module>./Serial</module>
 		<module>./Firmata</module>
+		<module>./FirmataTests</module>
 		<module>./ProcessingSerial</module>
 		<module>./IndepProcessingSerial</module>
 	</modules>

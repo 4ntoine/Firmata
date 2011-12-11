@@ -516,7 +516,7 @@ public class IndepProcessingSerial implements SerialPortEventListener {
 
 
     /**
-     * This will handle both ints, bytes and chars transparently.
+     * This will read both ints, bytes and chars transparently.
      */
     public void write(int what) {  // will also cover char
         try {

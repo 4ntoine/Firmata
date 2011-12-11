@@ -19,6 +19,6 @@ public class ReportProtocolVersionMessage extends Message {
 
     @Override
     public String toString() {
-        return "ReportFirmwareVersionMessage[]";
+        return "ReportProtocolVersionMessage[]";
     }
 }

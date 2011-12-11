@@ -1,9 +1,11 @@
 package name.antonsmirnov.firmata;
 
-import name.antonsmirnov.firmata.deserializer.*;
 import name.antonsmirnov.firmata.message.*;
+import name.antonsmirnov.firmata.reader.*;
 import name.antonsmirnov.firmata.serial.ISerial;
-import name.antonsmirnov.firmata.serializer.*;
+import name.antonsmirnov.firmata.writer.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import static name.antonsmirnov.firmata.BytesHelper.DECODE_COMMAND;
  * Plain Java Firmata impl
  */
 public class Firmata {
+
+    private static final Logger log = LoggerFactory.getLogger(Firmata.class);
 
     private static final int BUFFER_SIZE = 64;
 
@@ -61,7 +65,7 @@ public class Firmata {
         void onStringSysexMessageReceived(StringSysexMessage message);
 
         /**
-         * Unknown byte received (no active Deserializers)
+         * Unknown byte received (no active MessageReader)
          * @param byteValue
          */
         void onUnknownByteReceived(int byteValue);
@@ -91,8 +95,8 @@ public class Firmata {
     }
 
     public Firmata() {
-        initSerializers();
-        initDeserializers();
+        initWriters();
+        initReaders();
     }
 
     private Listener listener;
@@ -105,40 +109,40 @@ public class Firmata {
         this.listener = listener;
     }
 
-    private static Map<Class<? extends Message>, IMessageSerializer> serializers;
+    private static Map<Class<? extends Message>, IMessageWriter> writers;
 
-    private void initSerializers() {
-        serializers = new HashMap<Class<? extends Message>, IMessageSerializer>();
+    private void initWriters() {
+        writers = new HashMap<Class<? extends Message>, IMessageWriter>();
 
-        serializers.put(AnalogMessage.class, new AnalogMessageSerializer());
-        serializers.put(DigitalMessage.class, new DigitalMessageSerializer());
-        serializers.put(ReportAnalogPinMessage.class, new ReportAnalogPinMessageSerializer());
-        serializers.put(ReportDigitalPortMessage.class, new ReportDigitalPortMessageSerializer());
-        serializers.put(ReportProtocolVersionMessage.class, new ReportProtocolVersionMessageSerializer());
-        serializers.put(SetPinModeMessage.class, new SetPinModeMessageSerializer());
-        serializers.put(SystemResetMessage.class, new SystemResetMessageSerializer());
+        writers.put(AnalogMessage.class, new AnalogMessageWriter());
+        writers.put(DigitalMessage.class, new DigitalMessageWriter());
+        writers.put(ReportAnalogPinMessage.class, new ReportAnalogPinMessageWriter());
+        writers.put(ReportDigitalPortMessage.class, new ReportDigitalPortMessageWriter());
+        writers.put(ReportProtocolVersionMessage.class, new ReportProtocolVersionMessageWriter());
+        writers.put(SetPinModeMessage.class, new SetPinModeMessageWriter());
+        writers.put(SystemResetMessage.class, new SystemResetMessageWriter());
 
         // sysex messages
-        SysexMessageSerializer sysexMessageSerializer = new SysexMessageSerializer();
-        serializers.put(SysexMessage.class, sysexMessageSerializer);
-        serializers.put(StringSysexMessage.class, sysexMessageSerializer);
-        serializers.put(ReportFirmwareVersionMessage.class, sysexMessageSerializer);
+        SysexMessageWriter sysexMessageWriter = new SysexMessageWriter();
+        writers.put(SysexMessage.class, sysexMessageWriter);
+        writers.put(StringSysexMessage.class, sysexMessageWriter);
+        writers.put(ReportFirmwareVersionMessage.class, sysexMessageWriter);
     }
 
-    private static List<IMessageDeserializer> deserializers;
+    private static List<IMessageReader> readers;
 
-    private IMessageDeserializer activeDeserializer;
+    private IMessageReader activeReader;
 
-    private void initDeserializers() {
-        deserializers = new ArrayList<IMessageDeserializer>();
-        potentialDeserializers = new ArrayList<IMessageDeserializer>();
+    private void initReaders() {
+        readers = new ArrayList<IMessageReader>();
+        potentialReaders = new ArrayList<IMessageReader>();
 
-        deserializers.add(new AnalogMessageDeserializer());
-        deserializers.add(new DigitalMessageDeserializer());
-        deserializers.add(new FirmwareVersionMessageDeserializer());
-        deserializers.add(new ProtocolVersionMessageDeserializer());
-        deserializers.add(new SysexMessageDeserializer());
-        deserializers.add(new StringSysexMessageDeserializer());
+        readers.add(new AnalogMessageReader());
+        readers.add(new DigitalMessageReader());
+        readers.add(new FirmwareVersionMessageReader());
+        readers.add(new ProtocolVersionMessageReader());
+        readers.add(new SysexMessageReader());
+        readers.add(new StringSysexMessageReader());
     }
 
     /**
@@ -157,14 +161,15 @@ public class Firmata {
      * @param message concrete outcoming message
      */
     public void send(Message message) {
-        IMessageSerializer serializer = serializers.get(message.getClass());
-        if (serializer == null)
+        IMessageWriter writer = writers.get(message.getClass());
+        if (writer == null)
             throw new RuntimeException("Unknown message type: " + message.getClass());
 
-        serializer.writeToSerial(message, serial);
+        log.info("Sending {}", message);
+        writer.write(message, serial);
     }
 
-    private List<IMessageDeserializer> potentialDeserializers;
+    private List<IMessageReader> potentialReaders;
 
     private byte[] buffer = new byte[BUFFER_SIZE];
 
@@ -172,55 +177,60 @@ public class Firmata {
 
     private Message lastReceivedMessage;
 
-    public Message getLastReceivedMessage() {
+    protected synchronized void setLastReceivedMessage(Message message) {
+        this.lastReceivedMessage = message;
+        log.info("Received {}", lastReceivedMessage);
+    }
+    
+    public synchronized Message getLastReceivedMessage() {
         return lastReceivedMessage;
     }
 
     public void onDataReceived(int incomingByte) {
         buffer[bufferLength++] = (byte)incomingByte;
 
-        if (activeDeserializer == null) {
+        if (activeReader == null) {
             // new message byte is received
             int command = DECODE_COMMAND(incomingByte);
 
-            if (potentialDeserializers.size() == 0) {
+            if (potentialReaders.size() == 0) {
                 // first byte check
-                findPotentialDeserializers(command);
+                findPotentialReaders(command);
             } else {
                 // not first byte check
-                // few potential deserializers found, so we should check the next bytes to define Deserializer
-                filterPotentialDeserializers(command);
+                // few potential readers found, so we should check the next bytes to define MessageReader
+                filterPotentialReaders(command);
             }
 
             tryHandle();
 
         } else {
-            // continue handling with activeDeserializer
-            activeDeserializer.handle(buffer, bufferLength);
+            // continue handling with activeReader
+            activeReader.read(buffer, bufferLength);
 
-            if (activeDeserializer.finishedHandling()) {
+            if (activeReader.finishedReading()) {
                 // message is ready
-                lastReceivedMessage = activeDeserializer.getMessage();
-                activeDeserializer.fireEvent(listener);
+                activeReader.fireEvent(listener);
+                setLastReceivedMessage(activeReader.getMessage());
                 reinitBuffer();
             }
         }
     }
 
-    // pass the next bytes in order to define according deserializer
-    private void filterPotentialDeserializers(int command) {
-        List<IMessageDeserializer> newPotentialDeserializers = new ArrayList<IMessageDeserializer>();
+    // pass the next bytes in order to define according reader
+    private void filterPotentialReaders(int command) {
+        List<IMessageReader> newPotentialReaders = new ArrayList<IMessageReader>();
 
-        for (IMessageDeserializer eachPotentialDeserializer : potentialDeserializers)
-            if (eachPotentialDeserializer.canHandle(buffer, bufferLength, command))
-                newPotentialDeserializers.add(eachPotentialDeserializer);
+        for (IMessageReader eachPotentialReader : potentialReaders)
+            if (eachPotentialReader.canRead(buffer, bufferLength, command))
+                newPotentialReaders.add(eachPotentialReader);
 
-        potentialDeserializers = newPotentialDeserializers;
+        potentialReaders = newPotentialReaders;
     }
 
     private void tryHandle() {
-        int potentialDeserializersCount = potentialDeserializers.size();
-        switch (potentialDeserializersCount) {
+        int potentialReadersCount = potentialReaders.size();
+        switch (potentialReadersCount) {
 
             // unknown byte
             case 0:
@@ -229,27 +239,28 @@ public class Firmata {
                 reinitBuffer();
                 break;
 
-            // the only one deserializer
+            // the only one reader
             case 1:
-                activeDeserializer = potentialDeserializers.get(0);
-                activeDeserializer.startHandling();
+                activeReader = potentialReaders.get(0);
+                activeReader.startHandling();
+                log.info("Started reading with {} ...", activeReader.getClass().getSimpleName());
                 break;
 
             // default:
-            //  (in case if few serializers are found, we should pass the next bytes to define final deserializer)
+            //  (in case if few writers are found, we should pass the next bytes to define final reader)
         }
     }
 
     private void reinitBuffer() {
         bufferLength = 0;
-        activeDeserializer = null;
-        potentialDeserializers.clear();
+        activeReader = null;
+        potentialReaders.clear();
     }
 
-    private void findPotentialDeserializers(int command) {
-        for (IMessageDeserializer eachDeserializer : deserializers) {
-            if (eachDeserializer.canHandle(buffer, bufferLength, command)) {
-                potentialDeserializers.add(eachDeserializer);
+    private void findPotentialReaders(int command) {
+        for (IMessageReader eachReader : readers) {
+            if (eachReader.canRead(buffer, bufferLength, command)) {
+                potentialReaders.add(eachReader);
             }
         }
     }
