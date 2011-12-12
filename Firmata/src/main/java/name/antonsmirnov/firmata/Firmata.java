@@ -3,6 +3,7 @@ package name.antonsmirnov.firmata;
 import name.antonsmirnov.firmata.message.*;
 import name.antonsmirnov.firmata.reader.*;
 import name.antonsmirnov.firmata.serial.ISerial;
+import name.antonsmirnov.firmata.serial.ISerialListener;
 import name.antonsmirnov.firmata.writer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import static name.antonsmirnov.firmata.BytesHelper.DECODE_COMMAND;
 /**
  * Plain Java Firmata impl
  */
-public class Firmata {
+public class Firmata implements ISerialListener {
 
     private static final Logger log = LoggerFactory.getLogger(Firmata.class);
 
@@ -92,6 +93,7 @@ public class Firmata {
 
     public void setSerial(ISerial serial) {
         this.serial = serial;
+        serial.setListener(this);
     }
 
     public Firmata() {
@@ -184,6 +186,14 @@ public class Firmata {
     
     public synchronized Message getLastReceivedMessage() {
         return lastReceivedMessage;
+    }
+
+    public void onDataReceived(Object serialImpl) {
+        if (serial.available() > 0) {
+            int incomingByte = serial.read();
+            if (incomingByte > 0)
+                onDataReceived(incomingByte);
+        }
     }
 
     public void onDataReceived(int incomingByte) {

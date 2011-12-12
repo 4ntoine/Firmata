@@ -24,12 +24,17 @@
 
 package processing.serial;
 
-import name.antonsmirnov.firmata.serial.ISerial;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 
-import gnu.io.*;
-
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.Vector;
 
 /**
  * Class for sending and receiving data using the serial communication protocol.
@@ -45,7 +50,7 @@ public class IndepProcessingSerial implements SerialPortEventListener {
      * (according to buffer() and bufferUntil() settings)
      */
     public interface Listener {
-        void onDataReceived(IndepProcessingSerial serial);
+        void onDataReceived();
     }
 
     // properties can be passed in for default values
@@ -248,7 +253,7 @@ public class IndepProcessingSerial implements SerialPortEventListener {
                                 (!bufferUntil &&
                                 ((bufferLast - bufferIndex) >= bufferSize))) {
                                 try {
-                                    listener.onDataReceived(this);
+                                    listener.onDataReceived();
                                 } catch (Exception e) {
                                     String msg = "error, disabling serialEvent() for " + port;
                                     System.err.println(msg);

@@ -28,14 +28,6 @@ public abstract class BaseHardwareTest extends TestCase {
         firmata = new Firmata(serial);
         firmata.setListener(new Firmata.StubListener());
 
-        serialImpl.setListener(new IndepProcessingSerial.Listener() {
-            public void onDataReceived(IndepProcessingSerial serial) {
-                int incomingByte = serial.read();
-                if (incomingByte != 0)
-                    firmata.onDataReceived(incomingByte);
-            }
-        });
-
         serial.start();
         log.info("Connected to {} at {}", PORT, BAUD_RATE);
 

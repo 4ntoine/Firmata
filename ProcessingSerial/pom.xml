@@ -12,7 +12,7 @@
 
     <groupId>name.antonsmirnov.firmata.serial</groupId>
     <artifactId>ProcessingSerial</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>ProcessingSerial</name>
 
     <description>Processing Serial adapter as Serial API impl</description>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>name.antonsmirnov.firmata.serial</groupId>
             <artifactId>Serial</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>
 
         <dependency>

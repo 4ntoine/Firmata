@@ -1,12 +1,17 @@
 package name.antonsmirnov.firmata;
 
 import name.antonsmirnov.firmata.serial.ISerial;
+import name.antonsmirnov.firmata.serial.ISerialListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Test ISerial implementation
+ * (for usage in tests)
+ */
 public class TestSerial implements ISerial {
 
     // buffer
@@ -16,6 +21,10 @@ public class TestSerial implements ISerial {
     public TestSerial() {
         initInputStream();
         initOutputStream();
+    }
+
+    public void setListener(ISerialListener listener) {
+        // nothing (feed firmata directly instead)
     }
 
     private void initOutputStream() {
@@ -43,15 +52,9 @@ public class TestSerial implements ISerial {
     }
 
     public void start() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void stop() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setDTR(boolean state) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public int available() {
@@ -67,42 +70,6 @@ public class TestSerial implements ISerial {
         return inputStream.read();
     }
 
-    public int last() {
-        return 0;
-    }
-
-    public char readChar() {
-        return 0;
-    }
-
-    public char lastChar() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public byte[] readBytes() {
-        return null;
-    }
-
-    public int readBytes(byte[] outgoing) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public byte[] readBytesUntil(int interesting) {
-        return new byte[0];  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public int readBytesUntil(int interesting, byte[] outgoing) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public String readString() {
-        return null;
-    }
-
-    public String readStringUntil(int interesting) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public void write(int what) {
         outputStream.write(what);
     }
@@ -110,14 +77,6 @@ public class TestSerial implements ISerial {
     public void write(byte[] bytes) {
         try {
             outputStream.write(bytes);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void write(String what) {
-        try {
-            outputStream.write(what.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
