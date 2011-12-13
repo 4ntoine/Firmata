@@ -86,10 +86,19 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidValue_digital() {
+    public void testInvalidValue_digitalMask() {
         int invalid_digital_value = -1;
         try {
             firmata.send(board.digitalWrite(1, invalid_digital_value));
+        } catch (MessageValidationException e) {
+        }
+    }
+
+    @Test
+    public void testInvalidValue_digitalPort() {
+        int invalid_digital_port = 3;
+        try {
+            firmata.send(board.digitalWrite(invalid_digital_port, 1));
         } catch (MessageValidationException e) {
         }
     }

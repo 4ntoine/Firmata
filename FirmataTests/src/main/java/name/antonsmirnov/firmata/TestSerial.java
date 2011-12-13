@@ -3,10 +3,9 @@ package name.antonsmirnov.firmata;
 import name.antonsmirnov.firmata.serial.ISerial;
 import name.antonsmirnov.firmata.serial.ISerialListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Test ISerial implementation
@@ -14,17 +13,15 @@ import java.util.Properties;
  */
 public class TestSerial implements ISerial {
 
-    // buffer
-    private static final int BUFFER_SIZE = 1024;
-    private byte[] buffer = new byte[BUFFER_SIZE];
-
     public TestSerial() {
         initInputStream();
         initOutputStream();
     }
 
+    private ISerialListener listener;
+
     public void setListener(ISerialListener listener) {
-        // nothing (feed firmata directly instead)
+        this.listener = listener;
     }
 
     private void initOutputStream() {
@@ -32,24 +29,16 @@ public class TestSerial implements ISerial {
     }
 
     private void initInputStream() {
-        inputStream = new ByteArrayInputStream(buffer);
+        inputStream = new ConcurrentLinkedQueue();
     }
 
-    private ByteArrayInputStream inputStream;
-
-    public ByteArrayInputStream getInputStream() {
-        return inputStream;
-    }
+    private ConcurrentLinkedQueue<Integer> inputStream = new ConcurrentLinkedQueue<Integer>();
 
     public ByteArrayOutputStream getOutputStream() {
         return outputStream;
     }
 
     private ByteArrayOutputStream outputStream;
-
-    public void setProperties(Properties props) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     public void start() {
     }
@@ -58,7 +47,7 @@ public class TestSerial implements ISerial {
     }
 
     public int available() {
-        return inputStream.available();
+        return inputStream.size();
     }
 
     public void clear() {
@@ -67,7 +56,7 @@ public class TestSerial implements ISerial {
     }
 
     public int read() {
-        return inputStream.read();
+        return inputStream.poll();
     }
 
     public void write(int what) {
@@ -80,5 +69,10 @@ public class TestSerial implements ISerial {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void simulateIncomingByte(int incomingByte) {
+        inputStream.add(incomingByte);
+        listener.onDataReceived(this);
     }
 }

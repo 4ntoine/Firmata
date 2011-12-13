@@ -58,6 +58,13 @@ public abstract class BoardMessageFactory implements MessageFactory {
                 MessageFormat.format("Allowed pin values are [{0}-{1}]", minPin, maxPin));
     }
 
+    protected void validatePort(int port) throws MessageValidationException {
+        int ports = (int)Math.ceil((maxPin + 1) / 8.0);
+        if (port < 0 || port > ports)
+            throw new MessageValidationException(
+                MessageFormat.format("Allowed port values are [{0}-{1}]", 0, ports));
+    }
+
     protected void validateAnalogIn(int pin) throws MessageValidationException {
         int[] array = analogInPins;
         if (Arrays.binarySearch(array, pin) < 0)
@@ -94,15 +101,20 @@ public abstract class BoardMessageFactory implements MessageFactory {
             throw new MessageValidationException("Allowed digital values are [0; 1]");
     }
 
-    private void validateAnalogValue(int value) throws MessageValidationException {
-        if (value < 0 || value > 256)
-            throw new MessageValidationException("Allowed analog values are [0-256]");
+    protected void validateDigitalMask(int value) throws MessageValidationException {
+        if (value < 0 || value > 255)
+            throw new MessageValidationException("Allowed digital mask values are [0-255]");
     }
 
-    public ReportDigitalPortMessage digitalRead(int pin) throws MessageValidationException {
-        validatePin(pin);
+    private void validateAnalogValue(int value) throws MessageValidationException {
+        if (value < 0 || value > 255)
+            throw new MessageValidationException("Allowed analog values are [0-255]");
+    }
 
-        return new ReportDigitalPortMessage(pin, true);
+    public ReportDigitalPortMessage digitalRead(int port) throws MessageValidationException {
+        validatePort(port);
+
+        return new ReportDigitalPortMessage(port, true);
     }
 
     public ReportAnalogPinMessage analogRead(int pin) throws MessageValidationException {
@@ -127,11 +139,11 @@ public abstract class BoardMessageFactory implements MessageFactory {
         return new SetPinModeMessage(pin, mode);
     }
 
-    public DigitalMessage digitalWrite(int pin, int value) throws MessageValidationException {
-        validatePin(pin);
-        validateDigitalValue(value);
+    public DigitalMessage digitalWrite(int port, int value) throws MessageValidationException {
+        validatePort(port);
+        validateDigitalMask(value);
 
-        return new DigitalMessage(pin, value);
+        return new DigitalMessage(port, value);
     }
 
     public AnalogMessage analogWrite(int pin, int value) throws MessageValidationException {

@@ -238,7 +238,7 @@ public class IndepProcessingSerial implements SerialPortEventListener {
     synchronized public void serialEvent(SerialPortEvent serialEvent) {
         if (serialEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
-                while (input.available() > 0) {
+                while (input != null && input.available() > 0) {
                     synchronized (buffer) {
                         if (bufferLast == buffer.length) {
                             byte temp[] = new byte[bufferLast << 1];

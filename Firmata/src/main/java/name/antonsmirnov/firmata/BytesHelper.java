@@ -54,7 +54,7 @@ public class BytesHelper {
      * @return most significant byte
      */
     public static int MSB(int value) {
-        return value >> 7;
+        return (value >> 7) & 0x7F;
     }
 
     /**

@@ -11,10 +11,10 @@ public interface MessageFactory {
     /**
      * Read digital value fom the pin
      *
-     * @param pin pin
+     * @param port port
      * @return firmata message
      */
-    ReportDigitalPortMessage digitalRead(int pin) throws MessageValidationException;
+    ReportDigitalPortMessage digitalRead(int port) throws MessageValidationException;
 
     /**
      * Read analog value from the pin
@@ -37,11 +37,11 @@ public interface MessageFactory {
     /**
      * Write to a digital pin
      *
-     * @param pin ping
-     * @param value digital value (0/1)
+     * @param port port
+     * @param value pins mask
      * @return firmata message
      */
-    DigitalMessage digitalWrite(int pin, int value) throws MessageValidationException;
+    DigitalMessage digitalWrite(int port, int value) throws MessageValidationException;
 
     /**
      * Write an analog value (PWM-wave) to a pin.

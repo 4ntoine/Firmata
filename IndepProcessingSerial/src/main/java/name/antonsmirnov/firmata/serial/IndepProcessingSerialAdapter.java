@@ -49,11 +49,11 @@ public class IndepProcessingSerialAdapter implements ISerial, IndepProcessingSer
         return indepProcessingSerial.read();
     }
 
-    public void write(int what) {
-        indepProcessingSerial.write(what);
+    public void write(int outcomingByte) {
+        indepProcessingSerial.write((byte)outcomingByte);
     }
 
-    public void write(byte[] bytes) {
-        indepProcessingSerial.write(bytes);
+    public void write(byte[] outcomingBytes) {
+        indepProcessingSerial.write(outcomingBytes);
     }
 }

@@ -12,7 +12,7 @@ public abstract class BaseFirmataTest extends TestCase {
 
     protected static final int PIN_MAX = 16;
     protected static final int PORT_MAX = 3;
-    protected static final int  BYTE_MAX = 256;
+    protected static final int BYTE_MAX = 255;
 
     protected TestSerial serial;
 

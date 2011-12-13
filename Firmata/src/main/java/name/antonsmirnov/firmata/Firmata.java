@@ -22,7 +22,7 @@ public class Firmata implements ISerialListener {
 
     private static final Logger log = LoggerFactory.getLogger(Firmata.class);
 
-    private static final int BUFFER_SIZE = 64;
+    private static final int BUFFER_SIZE = 1024;
 
     /**
      * Listener for incoming messages from Arduino board
@@ -191,8 +191,7 @@ public class Firmata implements ISerialListener {
     public void onDataReceived(Object serialImpl) {
         if (serial.available() > 0) {
             int incomingByte = serial.read();
-            if (incomingByte > 0)
-                onDataReceived(incomingByte);
+            onDataReceived(incomingByte);
         }
     }
 
