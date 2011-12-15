@@ -1,6 +1,5 @@
 package name.antonsmirnov.firmata.serial;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -9,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISerialListener<ConcreteSerialImpl> {
 
-    private ConcurrentLinkedQueue<Integer> buffer = new ConcurrentLinkedQueue<Integer>();
+    private IByteBuffer buffer;
 
     private int threadPriority = Thread.NORM_PRIORITY;
 
@@ -28,9 +27,11 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
 
     private ISerial serial;
 
-    public BufferingSerialWrapper(ISerial serial) {
+    public BufferingSerialWrapper(ISerial serial, IByteBuffer buffer) {
         this.serial = serial;
         this.serial.setListener(this);
+
+        this.buffer = buffer;
     }
 
     public int available() {
@@ -101,7 +102,7 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
     }
 
     public int read() {
-        return buffer.poll();
+        return buffer.get();
     }
 
     public void write(int outcomingByte) {
@@ -114,6 +115,6 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
 
     public void onDataReceived(ConcreteSerialImpl serialImpl) {
         // add incoming byte into buffer
-        buffer.add(serial.read());
+        buffer.add((byte)serial.read());
     }
 }
