@@ -13,10 +13,10 @@ public class FirmataWaiter {
     
     private final int WAIT_INCREMENT = 1;  // ms
     
-    private Firmata firmata;
+    private MessagesHistoryFirmataWrapper firmata;
 
-    public FirmataWaiter(Firmata firmata) {
-        this.firmata = firmata;
+    public FirmataWaiter(IFirmata firmata) {
+        this.firmata = new MessagesHistoryFirmataWrapper(firmata);
     }
 
     private int waited;

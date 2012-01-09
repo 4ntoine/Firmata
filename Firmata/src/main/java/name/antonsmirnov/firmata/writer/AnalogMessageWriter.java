@@ -2,6 +2,7 @@ package name.antonsmirnov.firmata.writer;
 
 import name.antonsmirnov.firmata.message.AnalogMessage;
 import name.antonsmirnov.firmata.serial.ISerial;
+import name.antonsmirnov.firmata.serial.SerialException;
 
 import static name.antonsmirnov.firmata.BytesHelper.*;
 
@@ -12,7 +13,7 @@ public class AnalogMessageWriter implements IMessageWriter<AnalogMessage> {
 
     public static final int COMMAND = 0xE0;
 
-    public void write(AnalogMessage message, ISerial serial) {
+    public void write(AnalogMessage message, ISerial serial) throws SerialException {
         serial.write(COMMAND | ENCODE_CHANNEL(message.getPin()));
         serial.write(LSB(message.getValue()));
         serial.write(MSB(message.getValue()));

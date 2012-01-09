@@ -46,7 +46,7 @@ public class SysexMessage extends Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         SysexMessage message = (SysexMessage)obj;

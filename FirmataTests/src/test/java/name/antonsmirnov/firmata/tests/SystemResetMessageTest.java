@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.SystemResetMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import name.antonsmirnov.firmata.writer.SystemResetMessageWriter;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class SystemResetMessageTest extends BaseFirmataTest {
     private final SystemResetMessage message = new SystemResetMessage();
 
     @Test
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         serial.clear();
         firmata.send(message);
 

@@ -3,6 +3,7 @@ package name.antonsmirnov.firmata.tests;
 import junit.framework.Assert;
 import name.antonsmirnov.firmata.message.AnalogMessage;
 import name.antonsmirnov.firmata.message.SetPinModeMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class AnalogMessageTest extends BaseFirmataTest {
 
     @Test
     // compare original impl output and new impl output
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         serial.clear();
 
         for (int pin = 0; pin < PIN_MAX; pin++)
@@ -36,7 +37,7 @@ public class AnalogMessageTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testRead() {
+    public void testRead() throws SerialException {
         for (int pin = 0; pin < PIN_MAX; pin++)
             for (int value = 0; value < BYTE_MAX; value++) {
                 // create output
@@ -50,8 +51,8 @@ public class AnalogMessageTest extends BaseFirmataTest {
                     firmata.onDataReceived(eachByte);
 
                 // compare original command and received command
-                assertNotNull(firmata.getLastReceivedMessage());
-                Assert.assertEquals(outcomingMessage, firmata.getLastReceivedMessage());
+                assertNotNull(historyFirmataWrapper.getLastReceivedMessage());
+                Assert.assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessage());
             }
     }
 }

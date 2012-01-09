@@ -4,6 +4,7 @@ import name.antonsmirnov.firmata.FirmataWaiter;
 import name.antonsmirnov.firmata.WaitException;
 import name.antonsmirnov.firmata.message.ProtocolVersionMessage;
 import name.antonsmirnov.firmata.message.ReportProtocolVersionMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -13,11 +14,11 @@ import org.junit.Test;
 public class ReportProtocolHardwareTest extends BaseHardwareTest {
 
     @Test
-    public void testReportProtocol() throws WaitException {
+    public void testReportProtocol() throws WaitException, SerialException {
         firmata.send(new ReportProtocolVersionMessage());
 
-        // wait ProtocolVersionMessage for 5 seconds max
-        new FirmataWaiter(firmata).waitSeconds(5, ProtocolVersionMessage.class);
+        // wait ProtocolVersionMessage for 10 seconds max
+        new FirmataWaiter(firmata).waitSeconds(10, ProtocolVersionMessage.class);
     }
 
 }

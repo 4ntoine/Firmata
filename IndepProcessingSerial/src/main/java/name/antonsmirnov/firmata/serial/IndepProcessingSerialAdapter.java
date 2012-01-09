@@ -2,6 +2,9 @@ package name.antonsmirnov.firmata.serial;
 
 import processing.serial.IndepProcessingSerial;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * "ISerial" adapter for RXTX "Serial" class
  */
@@ -14,8 +17,8 @@ public class IndepProcessingSerialAdapter implements ISerial, IndepProcessingSer
     }
 
     public void onDataReceived() {
-        if (listener != null)
-            listener.onDataReceived(this);
+        for (ISerialListener eachListener : listeners)
+            eachListener.onDataReceived(this);
     }
 
     public IndepProcessingSerialAdapter(IndepProcessingSerial indepProcessingSerial) {
@@ -23,18 +26,30 @@ public class IndepProcessingSerialAdapter implements ISerial, IndepProcessingSer
         indepProcessingSerial.setListener(this);
     }
 
-    private ISerialListener listener;
+    private List<ISerialListener> listeners = new ArrayList<ISerialListener>();
     
-    public void setListener(ISerialListener listener) {
-        this.listener = listener;
+    public void addListener(ISerialListener listener) {
+        listeners.add(listener);
     }
 
+    public void removeListener(ISerialListener listener) {
+        listeners.remove(listener);
+    }
+
+    private boolean isStopping;
+
     public void start() {
+        isStopping = false;
         indepProcessingSerial.start();
     }
 
     public void stop() {
+        isStopping = true;
         indepProcessingSerial.stop();
+    }
+
+    public boolean isStopping() {
+        return isStopping;
     }
 
     public int available() {

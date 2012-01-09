@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.DigitalMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -9,7 +10,7 @@ import org.junit.Test;
 public class DigitalMessageTest extends BaseFirmataTest {
 
     @Test
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         serial.clear();
 
         for (int port = 0; port < PORT_MAX; port++)
@@ -27,7 +28,7 @@ public class DigitalMessageTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testRead() {
+    public void testRead() throws SerialException {
         for (int port = 0; port < PORT_MAX; port++)
             for (int value = 0; value < 2; value++) { // 2 (digital values only)
                 // create output
@@ -41,8 +42,8 @@ public class DigitalMessageTest extends BaseFirmataTest {
                     firmata.onDataReceived(eachByte);
 
                 // compare original command and received command
-                assertNotNull(firmata.getLastReceivedMessage());
-                assertEquals(outcomingMessage, firmata.getLastReceivedMessage());
+                assertNotNull(historyFirmataWrapper.getLastReceivedMessage());
+                assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessage());
             }
     }
 }

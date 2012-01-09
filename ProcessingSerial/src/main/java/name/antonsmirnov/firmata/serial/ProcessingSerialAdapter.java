@@ -13,7 +13,11 @@ public class ProcessingSerialAdapter implements ISerial {
         return processingSerial;
     }
 
-    public void setListener(ISerialListener listener) {
+    public void addListener(ISerialListener listener) {
+        throw new RuntimeException("ProcessingSerial does not have listener property. Instead it invokes parent.serialEvent(Serial) directly;");
+    }
+
+    public void removeListener(ISerialListener listener) {
         throw new RuntimeException("ProcessingSerial does not have listener property. Instead it invokes parent.serialEvent(Serial) directly;");
     }
 
@@ -23,10 +27,18 @@ public class ProcessingSerialAdapter implements ISerial {
 
     public void start() {
         // nothing (ProcessingSerial is opened in constructor)
+        isStopping = false;
     }
 
+    private boolean isStopping;
+
     public void stop() {
+        isStopping = true;
         processingSerial.stop();
+    }
+
+    public boolean isStopping() {
+        return isStopping;
     }
 
     public int available() {

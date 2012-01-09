@@ -3,6 +3,7 @@ package name.antonsmirnov.firmata.tests.hardware;
 import name.antonsmirnov.firmata.FirmataWaiter;
 import name.antonsmirnov.firmata.WaitException;
 import name.antonsmirnov.firmata.message.StringSysexMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -14,11 +15,11 @@ public class EchoStringHardwareTest extends BaseHardwareTest {
     private static final String STRING = "ping";
     
     @Test
-    public void testEcho() throws WaitException {
+    public void testEcho() throws WaitException, SerialException {
         firmata.send(new StringSysexMessage(STRING));
         new FirmataWaiter(firmata).waitSeconds(10, StringSysexMessage.class);
 
-        StringSysexMessage message = (StringSysexMessage) firmata.getLastReceivedMessage();
+        StringSysexMessage message = (StringSysexMessage) historyFirmataWrapper.getLastReceivedMessage();
         assertEquals(STRING, message.getData());
     }
 }

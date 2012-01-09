@@ -2,6 +2,7 @@ package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.StringSysexMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -12,7 +13,7 @@ public class StringSysexMessageTest extends BaseFirmataTest {
     private final StringSysexMessage originalMessage = new StringSysexMessage("abc");
 
     @Test
-    public void testWriteRead() {
+    public void testWriteRead() throws SerialException {
         serial.clear();
 
         firmata.send(originalMessage);
@@ -21,7 +22,7 @@ public class StringSysexMessageTest extends BaseFirmataTest {
         serial.clear();
         feedToFirmata(output);
 
-        Message actualMessage = firmata.getLastReceivedMessage();
+        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
         assertNotNull(actualMessage);
 
         assertEquals(originalMessage, actualMessage);

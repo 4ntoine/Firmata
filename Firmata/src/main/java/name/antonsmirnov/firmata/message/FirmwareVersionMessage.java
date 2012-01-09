@@ -50,7 +50,7 @@ public class FirmwareVersionMessage extends SysexMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         FirmwareVersionMessage message = (FirmwareVersionMessage)obj;

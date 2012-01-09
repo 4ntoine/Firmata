@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.SetPinModeMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public class SetPinModeMessageTest extends BaseFirmataTest {
 
     @Test
     // compare original impl output and new impl output
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         serial.clear();
 
         for (int pin = 0; pin < PIN_MAX; pin++)

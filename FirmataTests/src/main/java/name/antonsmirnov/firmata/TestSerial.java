@@ -3,8 +3,10 @@ package name.antonsmirnov.firmata;
 import name.antonsmirnov.firmata.serial.ISerial;
 import name.antonsmirnov.firmata.serial.ISerialListener;
 
-import java.io.*;
-import java.util.Properties;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -18,10 +20,14 @@ public class TestSerial implements ISerial {
         initOutputStream();
     }
 
-    private ISerialListener listener;
+    private List<ISerialListener> listeners = new ArrayList<ISerialListener>();
 
-    public void setListener(ISerialListener listener) {
-        this.listener = listener;
+    public void addListener(ISerialListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(ISerialListener listener) {
+        listeners.remove(listener);
     }
 
     private void initOutputStream() {
@@ -44,6 +50,10 @@ public class TestSerial implements ISerial {
     }
 
     public void stop() {
+    }
+
+    public boolean isStopping() {
+        return false;
     }
 
     public int available() {
@@ -69,10 +79,5 @@ public class TestSerial implements ISerial {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void simulateIncomingByte(int incomingByte) {
-        inputStream.add(incomingByte);
-        listener.onDataReceived(this);
     }
 }

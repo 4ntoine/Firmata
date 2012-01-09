@@ -1,6 +1,6 @@
 package name.antonsmirnov.firmata.reader;
 
-import name.antonsmirnov.firmata.Firmata;
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.FirmwareVersionMessage;
 import name.antonsmirnov.firmata.message.ReportFirmwareVersionMessage;
 
@@ -23,7 +23,7 @@ public class FirmwareVersionMessageReader extends BaseSysexMessageReader<Firmwar
         return message;
     }
 
-    public void fireEvent(Firmata.Listener listener) {
+    public void fireEvent(IFirmata.Listener listener) {
         listener.onFirmwareVersionMessageReceived(message);
     }
 }

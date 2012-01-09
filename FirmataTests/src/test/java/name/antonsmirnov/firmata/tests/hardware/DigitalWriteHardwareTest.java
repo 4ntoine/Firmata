@@ -6,6 +6,7 @@ import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import name.antonsmirnov.firmata.message.factory.MessageFactory;
 import name.antonsmirnov.firmata.message.factory.MessageValidationException;
 import name.antonsmirnov.firmata.message.factory.arduino.Duemilanove;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -27,7 +28,7 @@ public class DigitalWriteHardwareTest extends BaseHardwareTest {
 
     @Test
     // test : LED (pin 13) is switched ON for 5 seconds
-    public void testWriteRead() throws MessageValidationException, WaitException, InterruptedException {
+    public void testWriteRead() throws MessageValidationException, WaitException, InterruptedException, SerialException {
         // set pin mode : output
         firmata.send(new SetPinModeMessage(LED_PIN, SetPinModeMessage.PIN_MODE.OUTPUT.getMode()));
         // set port value : all to HIGH
