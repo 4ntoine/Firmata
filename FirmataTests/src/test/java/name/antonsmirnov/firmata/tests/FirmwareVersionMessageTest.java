@@ -61,7 +61,7 @@ public class FirmwareVersionMessageTest extends BaseFirmataTest {
         byte[] input = getInput();
         feedToFirmata(input);
 
-        Message actualMessage = firmata.getLastReceivedMessage();
+        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
         assertNotNull(actualMessage);
         assertEquals(FirmwareVersionMessage.class, actualMessage.getClass());
         assertEquals(expectedMessage, actualMessage);

@@ -22,7 +22,7 @@ public class ProtocolVersionMessageTest extends BaseFirmataTest {
 
         feedToFirmata(input);
 
-        Message actualMessage = firmata.getLastReceivedMessage();
+        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
         assertNotNull(actualMessage);
         assertEquals(expectedMessage, actualMessage);
     }

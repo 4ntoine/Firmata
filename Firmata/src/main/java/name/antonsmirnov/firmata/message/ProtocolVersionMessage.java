@@ -39,7 +39,7 @@ public class ProtocolVersionMessage extends Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         ProtocolVersionMessage message = (ProtocolVersionMessage)obj;

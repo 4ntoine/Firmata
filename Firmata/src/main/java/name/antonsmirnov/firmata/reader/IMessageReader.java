@@ -1,6 +1,6 @@
 package name.antonsmirnov.firmata.reader;
 
-import name.antonsmirnov.firmata.Firmata;
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.Message;
 
 /**
@@ -48,5 +48,5 @@ public interface IMessageReader<ConcreteMessage extends Message> {
      * Invoke Firmata listener
      * @param listener
      */
-    void fireEvent(Firmata.Listener listener);
+    void fireEvent(IFirmata.Listener listener);
 }

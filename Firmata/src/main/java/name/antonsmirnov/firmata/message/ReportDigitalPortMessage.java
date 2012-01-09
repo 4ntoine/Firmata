@@ -39,7 +39,7 @@ public class ReportDigitalPortMessage extends Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         ReportDigitalPortMessage message = (ReportDigitalPortMessage)obj;

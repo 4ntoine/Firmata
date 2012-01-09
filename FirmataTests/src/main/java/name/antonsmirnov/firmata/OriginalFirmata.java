@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata;
 
 import name.antonsmirnov.firmata.serial.ISerial;
+import name.antonsmirnov.firmata.serial.SerialException;
 
 /**
  * Almost original Firmata (Arduino.java) 1.5.1
@@ -113,7 +114,7 @@ public class OriginalFirmata {
      * @param pin  the pin whose mode to set (from 2 to 13)
      * @param mode either Arduino.INPUT or Arduino.OUTPUT
      */
-    public void pinMode(int pin, int mode) {
+    public void pinMode(int pin, int mode) throws SerialException {
         serial.write(SET_PIN_MODE);
         serial.write(pin);
         serial.write(mode);
@@ -127,7 +128,7 @@ public class OriginalFirmata {
      * @param value the value to send: Arduino.LOW (0 volts) or Arduino.HIGH
      *              (5 volts)
      */
-    public void digitalWrite(int pin, int value) {
+    public void digitalWrite(int pin, int value) throws SerialException {
         int portNumber = (pin >> 3) & 0x0F;
 
         if (value == 0)
@@ -148,7 +149,7 @@ public class OriginalFirmata {
      * @param value: 0 being the lowest (always off), and 255 the highest
      *            (always on)
      */
-    public void analogWrite(int pin, int value) {
+    public void analogWrite(int pin, int value) throws SerialException {
         pinMode(pin, PWM);
         serial.write(ANALOG_MESSAGE | (pin & 0x0F));
         serial.write(value & 0x7F);
@@ -216,7 +217,7 @@ public class OriginalFirmata {
         }
     }
 
-    private void processInput() {
+    private void processInput() throws SerialException {
         processByte(serial.read());
     }
 }

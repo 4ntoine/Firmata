@@ -1,6 +1,6 @@
 package name.antonsmirnov.firmata.reader;
 
-import name.antonsmirnov.firmata.Firmata;
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.ProtocolVersionMessage;
 import name.antonsmirnov.firmata.writer.ReportProtocolVersionMessageWriter;
 
@@ -42,7 +42,7 @@ public class ProtocolVersionMessageReader implements IMessageReader<ProtocolVers
         return message;
     }
 
-    public void fireEvent(Firmata.Listener listener) {
+    public void fireEvent(IFirmata.Listener listener) {
         listener.onProtocolVersionMessageReceived(getMessage());
     }
 }

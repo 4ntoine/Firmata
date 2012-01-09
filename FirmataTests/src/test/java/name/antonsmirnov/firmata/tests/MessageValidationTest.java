@@ -4,6 +4,7 @@ import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import name.antonsmirnov.firmata.message.factory.BoardMessageFactory;
 import name.antonsmirnov.firmata.message.factory.MessageValidationException;
 import name.antonsmirnov.firmata.message.factory.arduino.Duemilanove;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -22,7 +23,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidPin_negative() {
+    public void testInvalidPin_negative() throws SerialException {
         final int invalid_pin = board.getMinPin() - 1;
 
         try {
@@ -33,7 +34,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidPin_tooBig() {
+    public void testInvalidPin_tooBig() throws SerialException {
         final int invalid_pin = board.getMaxPin() + 1;
 
         try {
@@ -44,7 +45,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidPin_analogIn() {
+    public void testInvalidPin_analogIn() throws SerialException {
         final int invalid_pin = board.getAnalogInPins()[board.getAnalogInPins().length-1] + 1;
 
         try {
@@ -55,7 +56,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidPin_analogOut() {
+    public void testInvalidPin_analogOut() throws SerialException {
         final int invalid_pin = 1;
 
         try {
@@ -66,7 +67,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidValue_analog_negative() {
+    public void testInvalidValue_analog_negative() throws SerialException {
         int invalid_analog_value = -1;
         try {
             firmata.send(board.analogWrite(board.getAnalogOutPins()[0], invalid_analog_value));
@@ -76,7 +77,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidValue_analog_tooBig() {
+    public void testInvalidValue_analog_tooBig() throws SerialException {
         int invalid_analog_value = 512;
         try {
             firmata.send(board.analogWrite(board.getAnalogOutPins()[0], invalid_analog_value));
@@ -86,7 +87,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidValue_digitalMask() {
+    public void testInvalidValue_digitalMask() throws SerialException {
         int invalid_digital_value = -1;
         try {
             firmata.send(board.digitalWrite(1, invalid_digital_value));
@@ -95,7 +96,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testInvalidValue_digitalPort() {
+    public void testInvalidValue_digitalPort() throws SerialException {
         int invalid_digital_port = 3;
         try {
             firmata.send(board.digitalWrite(invalid_digital_port, 1));
@@ -104,7 +105,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testValid_analogIn() throws MessageValidationException {
+    public void testValid_analogIn() throws MessageValidationException, SerialException {
         int allowed_pin = board.getAnalogInPins()[0];
 
         firmata.send(board.analogRead(allowed_pin));
@@ -112,7 +113,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testValidValue_analogOut() throws MessageValidationException {
+    public void testValidValue_analogOut() throws MessageValidationException, SerialException {
         int allowed_pin = board.getAnalogOutPins()[0];
         int allowed_analog_value = 128;
 
@@ -121,7 +122,7 @@ public class MessageValidationTest extends BaseFirmataTest {
     }
 
     @Test
-    public void testValidValue_digital() throws MessageValidationException {
+    public void testValidValue_digital() throws MessageValidationException, SerialException {
         int allowed_pin = 1;
         int allowed_digital_value = 1;
 

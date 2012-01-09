@@ -20,7 +20,7 @@ public class StringSysexMessage extends SysexMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         StringSysexMessage message = (StringSysexMessage)obj;

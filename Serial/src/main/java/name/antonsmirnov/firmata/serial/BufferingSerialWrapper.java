@@ -1,5 +1,7 @@
 package name.antonsmirnov.firmata.serial;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -29,7 +31,7 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
 
     public BufferingSerialWrapper(ISerial serial, IByteBuffer buffer) {
         this.serial = serial;
-        this.serial.setListener(this);
+        this.serial.addListener(this);
 
         this.buffer = buffer;
     }
@@ -38,15 +40,26 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
         return buffer.size();
     }
 
-    private ISerialListener listener;
+    private List<ISerialListener> listeners = new ArrayList<ISerialListener>();
 
-    public void setListener(ISerialListener listener) {
-        this.listener = listener;
+    public void addListener(ISerialListener listener) {
+        listeners.add(listener);
     }
 
-    public void start() {
+    public void removeListener(ISerialListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void start() throws SerialException {
         startReadingThread();
         serial.start();
+    }
+
+    // flag for the thread to exit
+    private AtomicBoolean shouldStop = new AtomicBoolean();
+
+    public AtomicBoolean getShouldStop() {
+        return shouldStop;
     }
 
     /**
@@ -54,22 +67,12 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
      */
     private class BufferReadingThread extends Thread {
 
-        // flag for the thread to exit
-        private AtomicBoolean shouldStop = new AtomicBoolean(false);
-
-        public AtomicBoolean getShouldStop() {
-            return shouldStop;
-        }
-
         public void run() {
-            while (true) {
+            while (!shouldStop.get()) {
                 if (available() > 0) {
-                    listener.onDataReceived(this);
+                    for (ISerialListener eachListener : listeners)
+                        eachListener.onDataReceived(this);
                 }
-
-                // checking exit flag
-                if (shouldStop.get())
-                    break;
             }
         }
     }
@@ -78,14 +81,19 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
 
     private void startReadingThread() {
         readingThread = new BufferReadingThread();
+        shouldStop.set(false);
         readingThread.start();
     }
 
-    public void stop() {
+    public void stop() throws SerialException {
         stopReadingThread();
         serial.stop();
 
         clear();
+    }
+
+    public boolean isStopping() {
+        return shouldStop.get();
     }
 
     private void stopReadingThread() {
@@ -93,7 +101,7 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
             return;
 
         // set exit flag
-        readingThread.getShouldStop().set(true);
+        shouldStop.set(true);
         readingThread = null;
     }
 
@@ -105,16 +113,25 @@ public class BufferingSerialWrapper<ConcreteSerialImpl> implements ISerial, ISer
         return buffer.get();
     }
 
-    public void write(int outcomingByte) {
+    public void write(int outcomingByte) throws SerialException {
         serial.write(outcomingByte);
     }
 
-    public void write(byte[] outcomingBytes) {
+    public void write(byte[] outcomingBytes) throws SerialException {
         serial.write(outcomingBytes);
     }
 
     public void onDataReceived(ConcreteSerialImpl serialImpl) {
         // add incoming byte into buffer
-        buffer.add((byte)serial.read());
+        try {
+            buffer.add((byte)serial.read());
+        } catch (SerialException e) {
+            onException(e);
+        }
+    }
+
+    public void onException(Throwable e) {
+        for (ISerialListener eachListener : listeners)
+            eachListener.onException(e);
     }
 }

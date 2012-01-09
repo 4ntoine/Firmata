@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.ReportFirmwareVersionMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import name.antonsmirnov.firmata.writer.SysexMessageWriter;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ import java.util.Arrays;
 public class ReportFirmwareVersionMessageTest extends BaseFirmataTest {
 
     @Test
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         serial.clear();
         ReportFirmwareVersionMessage message = new ReportFirmwareVersionMessage();
         firmata.send(message);

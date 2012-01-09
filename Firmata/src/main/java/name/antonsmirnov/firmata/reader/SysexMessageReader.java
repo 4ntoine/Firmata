@@ -1,6 +1,6 @@
 package name.antonsmirnov.firmata.reader;
 
-import name.antonsmirnov.firmata.Firmata;
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.SysexMessage;
 
 /**
@@ -22,7 +22,7 @@ public class SysexMessageReader extends BaseSysexMessageReader<SysexMessage> {
         return message;
     }
 
-    public void fireEvent(Firmata.Listener listener) {
+    public void fireEvent(IFirmata.Listener listener) {
         listener.onSysexMessageReceived(message);
     }
 }

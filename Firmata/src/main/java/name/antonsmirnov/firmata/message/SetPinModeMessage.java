@@ -96,7 +96,7 @@ public class SetPinModeMessage extends Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         SetPinModeMessage message = (SetPinModeMessage)obj;

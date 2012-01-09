@@ -1,11 +1,7 @@
-package name.antonsmirnov.firmata.tests;
+package name.antonsmirnov.firmata.serial.tests;
 
 import junit.framework.TestCase;
-import name.antonsmirnov.firmata.TestSerial;
-import name.antonsmirnov.firmata.serial.BufferingSerialWrapper;
-import name.antonsmirnov.firmata.serial.IByteBuffer;
-import name.antonsmirnov.firmata.serial.ISerialListener;
-import name.antonsmirnov.firmata.serial.QueueByteBufferAdapter;
+import name.antonsmirnov.firmata.serial.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +25,13 @@ public class BufferingSerialWrapperTest extends TestCase {
     /**
      * Thread that simulates incoming bytes in TestSerial
      */
-    private class TestThread extends Thread {
+    public class WriterThread extends Thread {
 
-        private TestSerial serial;
-        private int minValue;
-        private int maxValue;
+        private ISerial serial;
+        private byte minValue;
+        private byte maxValue;
 
-        public TestThread(TestSerial serial, byte minValue, byte maxValue) {
+        public WriterThread(ISerial serial, byte minValue, byte maxValue) {
             super();
             setPriority(Thread.MAX_PRIORITY);
 
@@ -49,25 +45,35 @@ public class BufferingSerialWrapperTest extends TestCase {
             super.run();
             
             for (int i=minValue; i<=maxValue; i++) {
-                log.info("Put '{}' to buffer", i);
-                serial.simulateIncomingByte(i);
+                byte outcomingByte = (byte)i;
+                log.info("Put '{}' to buffer", outcomingByte);
+                try {
+                    serial.write(outcomingByte);
+                } catch (SerialException e) {
+                    log.error("serial exception", e);
+                }
             }
         }
     }
 
-    private TestThread writingThread;
+    private WriterThread writingThread;
 
     private AtomicInteger maxRead = new AtomicInteger();
-    final TestSerial serial = new TestSerial();
-
+    final ISerial serial = new WritebackSerial();
 
     @Test
     // ConcurrentLinkedQueue as buffer
-    public void testQueue() throws InterruptedException {
+    public void testQueue() throws InterruptedException, SerialException {
         testWriteRead(new QueueByteBufferAdapter(new ConcurrentLinkedQueue<Byte>()));
     }
 
-    private void testWriteRead(IByteBuffer buffer) throws InterruptedException {
+    @Test
+    // byte[] as buffer
+    public void testByteArray() throws InterruptedException, SerialException {
+        testWriteRead(new ByteArrayByteBufferAdapter(new byte[256]));
+    }
+
+    private void testWriteRead(IByteBuffer buffer) throws InterruptedException, SerialException {
         final BufferingSerialWrapper bufferingWrapper = new BufferingSerialWrapper(serial, buffer);
 
         // reading thread is slower than writing to check buffer filling
@@ -75,11 +81,17 @@ public class BufferingSerialWrapperTest extends TestCase {
 
         bufferingWrapper.start();
 
-        writingThread = new TestThread(serial, MIN_VALUE, MAX_VALUE);
-        bufferingWrapper.setListener(new ISerialListener() {
+        writingThread = new WriterThread(serial, MIN_VALUE, MAX_VALUE);
+        bufferingWrapper.addListener(new ISerialListener() {
             public void onDataReceived(Object serialImpl) {
-                maxRead.set(bufferingWrapper.read());
-                log.info("Read '{}' from buffer (size={})", maxRead.intValue(), bufferingWrapper.available());
+                byte incomingByte = (byte) bufferingWrapper.read();
+                maxRead.set(incomingByte);
+                final int available = bufferingWrapper.available();
+                log.info("Read '{}' from buffer (size={})", maxRead.intValue(), available);
+            }
+
+            public void onException(Throwable e) {
+                log.error("serial exception", e);
             }
         });
 

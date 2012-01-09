@@ -42,7 +42,7 @@ public class DigitalMessage extends Message {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
 
         DigitalMessage message = (DigitalMessage)obj;

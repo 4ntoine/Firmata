@@ -4,6 +4,7 @@ import name.antonsmirnov.firmata.message.*;
 import name.antonsmirnov.firmata.reader.*;
 import name.antonsmirnov.firmata.serial.ISerial;
 import name.antonsmirnov.firmata.serial.ISerialListener;
+import name.antonsmirnov.firmata.serial.SerialException;
 import name.antonsmirnov.firmata.writer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,72 +19,11 @@ import static name.antonsmirnov.firmata.BytesHelper.DECODE_COMMAND;
 /**
  * Plain Java Firmata impl
  */
-public class Firmata implements ISerialListener {
+public class Firmata implements IFirmata, ISerialListener {
 
     private static final Logger log = LoggerFactory.getLogger(Firmata.class);
 
     private static final int BUFFER_SIZE = 1024;
-
-    /**
-     * Listener for incoming messages from Arduino board
-     */
-    public static interface Listener {
-
-        /**
-         * AnalogMessage received event
-         * @param message
-         */
-        void onAnalogMessageReceived(AnalogMessage message);
-
-        /**
-         * DigitalMessage received event
-         * @param message
-         */
-        void onDigitalMessageReceived(DigitalMessage message);
-
-        /**
-         * FirmwareVersionMessage received event
-         * @param message
-         */
-        void onFirmwareVersionMessageReceived(FirmwareVersionMessage message);
-
-        /**
-         *  ProtocolVersionMessage received event
-         * @param message
-         */
-        void onProtocolVersionMessageReceived(ProtocolVersionMessage message);
-
-        /**
-         * SysexMessage received (NOT KNOWN SysexMessage inherited commands like ReportFirmwareVersionMessage, StringSysexMessage, etc)
-         *
-         * @param message
-         */
-        void onSysexMessageReceived(SysexMessage message);
-
-        /**
-         * StringSysexMessage received event
-         */
-        void onStringSysexMessageReceived(StringSysexMessage message);
-
-        /**
-         * Unknown byte received (no active MessageReader)
-         * @param byteValue
-         */
-        void onUnknownByteReceived(int byteValue);
-    }
-
-    /**
-     * Listener stub
-     */
-    public static class StubListener implements Listener {
-        public void onAnalogMessageReceived(AnalogMessage message) {}
-        public void onDigitalMessageReceived(DigitalMessage message) {}
-        public void onFirmwareVersionMessageReceived(FirmwareVersionMessage message) {}
-        public void onProtocolVersionMessageReceived(ProtocolVersionMessage message) {}
-        public void onSysexMessageReceived(SysexMessage message) {}
-        public void onStringSysexMessageReceived(StringSysexMessage message) {}
-        public void onUnknownByteReceived(int byteValue) {}
-    }
 
     private ISerial serial;
 
@@ -93,7 +33,7 @@ public class Firmata implements ISerialListener {
 
     public void setSerial(ISerial serial) {
         this.serial = serial;
-        serial.setListener(this);
+        serial.addListener(this);
     }
 
     public Firmata() {
@@ -101,14 +41,22 @@ public class Firmata implements ISerialListener {
         initReaders();
     }
 
-    private Listener listener;
+    private List<IFirmata.Listener> listeners = new ArrayList<IFirmata.Listener>();
 
-    public Listener getListener() {
-        return listener;
+    public void addListener(IFirmata.Listener listener) {
+        listeners.add(listener);
     }
 
-    public void setListener(Listener listener) {
-        this.listener = listener;
+    public void removeListener(IFirmata.Listener listener) {
+        listeners.remove(listener);
+    }
+
+    public boolean containsListener(IFirmata.Listener listener) {
+        return listeners.contains(listener);
+    }
+
+    public void clearListeners() {
+        listeners.clear();
     }
 
     private static Map<Class<? extends Message>, IMessageWriter> writers;
@@ -162,7 +110,7 @@ public class Firmata implements ISerialListener {
      *
      * @param message concrete outcoming message
      */
-    public void send(Message message) {
+    public void send(Message message) throws SerialException {
         IMessageWriter writer = writers.get(message.getClass());
         if (writer == null)
             throw new RuntimeException("Unknown message type: " + message.getClass());
@@ -177,24 +125,25 @@ public class Firmata implements ISerialListener {
 
     private int bufferLength;
 
-    private Message lastReceivedMessage;
-
-    protected synchronized void setLastReceivedMessage(Message message) {
-        this.lastReceivedMessage = message;
-        log.info("Received {}", lastReceivedMessage);
-    }
-    
-    public synchronized Message getLastReceivedMessage() {
-        return lastReceivedMessage;
-    }
-
     public void onDataReceived(Object serialImpl) {
-        if (serial.available() > 0) {
-            int incomingByte = serial.read();
-            onDataReceived(incomingByte);
+        try {
+            if (serial.available() > 0) {
+                int incomingByte = serial.read();
+                if (incomingByte >= 0)
+                    onDataReceived(incomingByte);
+            }
+        } catch (SerialException e) {
+            log.error("Failed to read received data", e);
         }
     }
 
+    public void onException(Throwable e) {
+    }
+
+    /**
+     * Incoming byte received event
+     * @param incomingByte incoming byte
+     */
     public void onDataReceived(int incomingByte) {
         buffer[bufferLength++] = (byte)incomingByte;
 
@@ -218,9 +167,10 @@ public class Firmata implements ISerialListener {
             activeReader.read(buffer, bufferLength);
 
             if (activeReader.finishedReading()) {
+                log.info("Received {}", activeReader.getMessage());
                 // message is ready
-                activeReader.fireEvent(listener);
-                setLastReceivedMessage(activeReader.getMessage());
+                for (IFirmata.Listener eachListener : listeners)
+                    activeReader.fireEvent(eachListener);
                 reinitBuffer();
             }
         }
@@ -244,7 +194,8 @@ public class Firmata implements ISerialListener {
             // unknown byte
             case 0:
                 for (int i=0; i<bufferLength; i++)
-                    listener.onUnknownByteReceived(buffer[i]);
+                    for (IFirmata.Listener eachListener : listeners)
+                        eachListener.onUnknownByteReceived(buffer[i]);
                 reinitBuffer();
                 break;
 

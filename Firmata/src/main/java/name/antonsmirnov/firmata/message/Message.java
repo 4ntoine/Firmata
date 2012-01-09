@@ -7,4 +7,9 @@ import java.io.Serializable;
  * (implements Serializable to support persistence)
  */
 public abstract class Message implements Serializable {
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj != null && obj.getClass().equals(getClass()));
+    }
 }

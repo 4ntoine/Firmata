@@ -10,14 +10,6 @@ public class SystemResetMessage extends Message {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-
-        return obj instanceof SystemResetMessage;
-    }
-
-    @Override
     public String toString() {
         return "SystemResetMessage[]";
     }

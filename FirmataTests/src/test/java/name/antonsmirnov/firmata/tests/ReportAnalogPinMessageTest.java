@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.ReportAnalogPinMessage;
+import name.antonsmirnov.firmata.serial.SerialException;
 import org.junit.Test;
 
 /**
@@ -9,14 +10,14 @@ import org.junit.Test;
 public class ReportAnalogPinMessageTest extends BaseFirmataTest {
 
     @Test
-    public void testWrite() {
+    public void testWrite() throws SerialException {
         for (int pin = 0; pin < PIN_MAX; pin++) {
             assertOk(pin, true);
             assertOk(pin, false);
         }
     }
 
-    private void assertOk(int pin, boolean enable) {
+    private void assertOk(int pin, boolean enable) throws SerialException {
         serial.clear();
         ReportAnalogPinMessage message = new ReportAnalogPinMessage(pin, enable);
         firmata.send(message);

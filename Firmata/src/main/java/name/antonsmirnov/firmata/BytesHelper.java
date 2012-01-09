@@ -112,4 +112,82 @@ public class BytesHelper {
             buffer.put(offset++, (byte)MSB(original_data[i]));
         }
     }
+
+    public static final int BITS_IN_BYTE = 8;
+
+    public static final int BYTE_MAX_VALUE = 255;
+
+    /**
+     * Get port for pin
+     *
+     * @param pin
+     * @return
+     */
+    public static int portByPin(int pin) {
+        return pin / BITS_IN_BYTE;
+    }
+
+    /**
+     * Get mask for port to set pin in HIGH
+     *
+     * @param pinInPort = [0,7]
+     * @return
+     */
+    private static int pinMaskHigh(int pinInPort) {
+        return (1 << (pinInPort % BITS_IN_BYTE));
+    }
+
+
+    /**
+     * Get mask for port to set pin in LOW
+     *
+     * @param pinInPort = [0,7]
+     * @return
+     */
+    private static int pinMaskLow(int pinInPort) {
+        int mask = 0;
+        for (int eachPin = BITS_IN_BYTE-1; eachPin >= 0; eachPin--) {
+            mask |= (eachPin == pinInPort ? 0 : 1);
+            if (eachPin > 0)
+                mask <<= 1;
+        }
+        return mask;
+    }
+
+    /**
+     * Get pin in port index using absolute pin index
+     *
+     * @param pin any
+     * @return pin = [0,7]
+     */
+    public static int pinInPort(int pin) {
+        return pin % BITS_IN_BYTE;
+    }
+
+    /**
+     * Set HIGH or LOW pin value for port values
+     *
+     * @param portValues
+     * @param pinInPort = [0, 7]
+     * @param highLevel pin level is High level
+     * @return
+     */
+    public static int setPin(int portValues, int pinInPort, boolean highLevel) {
+        if (highLevel) {
+            return portValues | pinMaskHigh(pinInPort);
+        } else {
+            return portValues & pinMaskLow(pinInPort);
+        }
+    }
+
+    /**
+     * Check if pin level is High
+     *
+     * @param portValues portValues
+     * @param pinInPort = [0,7]
+     * @return
+     */
+    public static boolean getPin(int portValues, int pinInPort) {
+        return (portValues & BytesHelper.pinMaskHigh(pinInPort)) > 0;
+    }
 }

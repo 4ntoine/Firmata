@@ -14,14 +14,6 @@ public class ReportFirmwareVersionMessage extends SysexMessage {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-
-        return obj instanceof ReportFirmwareVersionMessage;
-    }
-
-    @Override
     public String toString() {
         return "ReportFirmwareVersionMessage[]";
     }
