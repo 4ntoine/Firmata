@@ -72,11 +72,29 @@ public abstract class BoardMessageFactory implements MessageFactory {
                     MessageFormat.format("Allowed analog in pins are [{0}]", arrayToString(array)));
     }
 
+    public boolean isAnalogIn(int pin) {
+        try {
+            validateAnalogIn(pin);
+            return true;
+        } catch (MessageValidationException e) {
+            return false;
+        }
+    }
+
     protected void validateAnalogOut(int pin) throws MessageValidationException {
         int[] array = analogOutPins;
         if (Arrays.binarySearch(array, pin) < 0)
             throw new MessageValidationException(
                 MessageFormat.format("Allowed analog out (PWM) pins are [{0}]", arrayToString(array)));
+    }
+
+    public boolean isAnalogOut(int pin) {
+        try {
+            validateAnalogOut(pin);
+            return true;
+        } catch (MessageValidationException e) {
+            return false;
+        }
     }
 
     protected String arrayToString(int[] array) {
