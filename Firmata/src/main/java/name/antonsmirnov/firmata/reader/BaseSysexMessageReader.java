@@ -3,7 +3,7 @@ package name.antonsmirnov.firmata.reader;
 import name.antonsmirnov.firmata.message.SysexMessage;
 import name.antonsmirnov.firmata.writer.SysexMessageWriter;
 
-import static name.antonsmirnov.firmata.BytesHelper.DECODE_STRING;
+import static name.antonsmirnov.firmata.BytesHelper.*;
 
 /**
  * Base MessageReader for SysexMessage
@@ -25,10 +25,10 @@ public abstract class BaseSysexMessageReader<ConcreteSysexMessage extends SysexM
                (bufferLength == 3 && sysexCommand != null);
     }
 
-    protected boolean isHandling;
+    protected boolean isReading;
 
-    public void startHandling() {
-        isHandling = true;
+    public void startReading() {
+        isReading = true;
     }
 
     protected ConcreteSysexMessage message;
@@ -37,7 +37,7 @@ public abstract class BaseSysexMessageReader<ConcreteSysexMessage extends SysexM
         byte incomingByte = buffer[length-1];
 
         if (incomingByte == (byte) SysexMessageWriter.COMMAND_END) {
-            isHandling = false;
+            isReading = false;
 
             message = buildSysexMessage(buffer, length);
         }
@@ -57,14 +57,23 @@ public abstract class BaseSysexMessageReader<ConcreteSysexMessage extends SysexM
     }
 
     public boolean finishedReading() {
-        return !isHandling;
+        return !isReading;
+    }
+
+    protected void validateSysexDataLength(int startIndex, int endIndex) {
+        if ((endIndex - startIndex + 1) % 2 != 0)
+            throw new RuntimeException("Sysex command data length should be even");
     }
 
     // extract string from buffer
     protected String extractStringFromBuffer(byte[] buffer, int startIndex, int endIndex) {
-        if ((endIndex - startIndex + 1) % 2 != 0)
-            throw new RuntimeException("Sysex command data length should be even");
-
+        validateSysexDataLength(startIndex, endIndex);
         return DECODE_STRING(buffer, startIndex, endIndex);
+    }
+
+    // extract integer array from buffer
+    protected int[] extractIntArrayFromBuffer(byte[] buffer, int startIndex, int endIndex) {
+        validateSysexDataLength(startIndex, endIndex);
+        return DECODE_INT_ARRAY(buffer, startIndex, endIndex);
     }
 }

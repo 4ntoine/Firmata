@@ -87,6 +87,24 @@ public class BytesHelper {
     }
 
     /**
+     * Decode integer array that was encoded using LSB(byte), MSB(byte)
+     *
+     * @param buffer  buffer
+     * @param startIndex start index
+     * @param endIndex end index
+     * @return decoded string
+     */
+    public static int[] DECODE_INT_ARRAY(byte[] buffer, int startIndex, int endIndex) {
+        int offset = startIndex;
+        int length = (endIndex - startIndex + 1) / 2;
+        int[] intBuffer = new int[length];
+        for (int i=0; i<length; i++) {
+            intBuffer[i] = DECODE_BYTE(buffer[offset++], buffer[offset++]);
+        }
+        return intBuffer;
+    }
+
+    /**
      * Encode string - every byte goes to LSB(byte), MSB(byte)
      *
      * @param data string data

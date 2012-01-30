@@ -18,7 +18,7 @@ public class AnalogMessageReader implements IMessageReader<AnalogMessage> {
 
     private boolean isHandling;
 
-    public void startHandling() {
+    public void startReading() {
         isHandling = true;
         message = new AnalogMessage();
     }

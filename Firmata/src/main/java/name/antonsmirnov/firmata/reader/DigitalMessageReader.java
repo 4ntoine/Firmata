@@ -18,7 +18,7 @@ public class DigitalMessageReader implements IMessageReader<DigitalMessage> {
 
     private boolean isHandling;
 
-    public void startHandling() {
+    public void startReading() {
         isHandling = true;
         message = new DigitalMessage();
     }

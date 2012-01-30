@@ -95,6 +95,7 @@ public class Firmata implements IFirmata, ISerialListener {
         readers.add(new ProtocolVersionMessageReader());
         readers.add(new SysexMessageReader());
         readers.add(new StringSysexMessageReader());
+        readers.add(new I2cReplyMessageReader());
     }
 
     /**
@@ -204,7 +205,7 @@ public class Firmata implements IFirmata, ISerialListener {
             // the only one reader
             case 1:
                 activeReader = potentialReaders.get(0);
-                activeReader.startHandling();
+                activeReader.startReading();
                 log.info("Started reading with {} ...", activeReader.getClass().getSimpleName());
                 break;
 

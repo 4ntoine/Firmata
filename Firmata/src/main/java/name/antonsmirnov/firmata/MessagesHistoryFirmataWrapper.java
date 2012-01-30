@@ -102,6 +102,10 @@ public class MessagesHistoryFirmataWrapper implements IFirmata, IFirmata.Listene
         rememberReceivedMessage(message);
     }
 
+    public void onI2cMessageReceived(I2cReplyMessage message) {
+        rememberReceivedMessage(message);
+    }
+
     public void onUnknownByteReceived(int byteValue) {
         // nothing
     }

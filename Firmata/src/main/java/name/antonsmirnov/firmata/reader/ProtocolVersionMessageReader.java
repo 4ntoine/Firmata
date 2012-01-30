@@ -17,7 +17,7 @@ public class ProtocolVersionMessageReader implements IMessageReader<ProtocolVers
 
     private boolean isHandling;
 
-    public void startHandling() {
+    public void startReading() {
         isHandling = true;
         message = new ProtocolVersionMessage();
     }

@@ -20,7 +20,7 @@ public interface IMessageReader<ConcreteMessage extends Message> {
     /**
      * Start handling message
      */
-    void startHandling();
+    void startReading();
 
     /**
      * Read next message byte

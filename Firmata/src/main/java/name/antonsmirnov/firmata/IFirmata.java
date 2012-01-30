@@ -50,6 +50,11 @@ public interface IFirmata {
         void onStringSysexMessageReceived(StringSysexMessage message);
 
         /**
+         * ReportI2cMessageReceived received event
+         */
+        void onI2cMessageReceived(I2cReplyMessage message);
+
+        /**
          * Unknown byte received (no active MessageReader)
          * @param byteValue
          */
@@ -66,6 +71,7 @@ public interface IFirmata {
         public void onProtocolVersionMessageReceived(ProtocolVersionMessage message) {}
         public void onSysexMessageReceived(SysexMessage message) {}
         public void onStringSysexMessageReceived(StringSysexMessage message) {}
+        public void onI2cMessageReceived(I2cReplyMessage message) {}
         public void onUnknownByteReceived(int byteValue) {}
     }
 

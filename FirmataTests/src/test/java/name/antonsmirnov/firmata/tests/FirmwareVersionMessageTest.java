@@ -44,7 +44,7 @@ public class FirmwareVersionMessageTest extends BaseFirmataTest {
 
         // feed input
         FirmwareVersionMessageReader reader = new FirmwareVersionMessageReader();
-        reader.startHandling();
+        reader.startReading();
         // from 2 (not 0), because COMMAND_START and sysex command bytes were walked during canRead()
         for (int i=2; i<input.length; i++)
             reader.read(input, i + 1);
