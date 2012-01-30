@@ -9,20 +9,27 @@ import static name.antonsmirnov.firmata.BytesHelper.ENCODE_STRING;
 /**
  * MessageWriter for SysexMessage and inheritors
  */
-public class SysexMessageWriter implements IMessageWriter<SysexMessage> {
+public class SysexMessageWriter<ConcreteSysexMessage extends SysexMessage> implements IMessageWriter<ConcreteSysexMessage> {
 
     public static final int COMMAND_START = 0xF0;
     public static final int COMMAND_END   = 0xF7;
 
-    public void write(SysexMessage message, ISerial serial) throws SerialException {
+    public void write(ConcreteSysexMessage message, ISerial serial) throws SerialException {
         serial.write(COMMAND_START);
-        serial.write(message.getCommand());
+        writeCommand(message, serial);
+        writeData(message, serial);
+        serial.write(COMMAND_END);
+    }
 
+    protected void writeCommand(ConcreteSysexMessage message, ISerial serial) throws SerialException {
+        serial.write(message.getCommand());
+    }
+
+    protected void writeData(ConcreteSysexMessage message, ISerial serial) throws SerialException {
         if (message.getData() != null) {
             byte[] dataBytes = ENCODE_STRING(message.getData());
             serial.write(dataBytes);
         }
-
-        serial.write(COMMAND_END);
     }
+
 }

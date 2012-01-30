@@ -7,6 +7,7 @@ import java.text.MessageFormat;
  */
 public class StringSysexMessage extends SysexMessage {
 
+    // Sysex command byte
     public static final int COMMAND = 0x71;
 
     public StringSysexMessage() {
@@ -16,20 +17,6 @@ public class StringSysexMessage extends SysexMessage {
     public StringSysexMessage(String data) {
         this();
         setData(data);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj))
-            return false;
-
-        StringSysexMessage message = (StringSysexMessage)obj;
-        return message != null &&
-               (
-                   (message.getData() == null && getData() == null)
-                   ||
-                   (message.getData() != null && message.getData().equals(getData()))
-               );
     }
 
     @Override
