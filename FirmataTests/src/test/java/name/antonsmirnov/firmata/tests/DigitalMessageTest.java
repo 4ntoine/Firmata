@@ -42,8 +42,8 @@ public class DigitalMessageTest extends BaseFirmataTest {
                     firmata.onDataReceived(eachByte);
 
                 // compare original command and received command
-                assertNotNull(historyFirmataWrapper.getLastReceivedMessage());
-                assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessage());
+                assertNotNull(historyFirmataWrapper.getLastReceivedMessageWithProperties());
+                assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessageWithProperties().getMessage());
             }
     }
 }

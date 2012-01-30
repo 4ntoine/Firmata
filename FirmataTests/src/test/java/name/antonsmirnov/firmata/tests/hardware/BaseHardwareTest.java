@@ -6,6 +6,8 @@ import name.antonsmirnov.firmata.message.FirmwareVersionMessage;
 import name.antonsmirnov.firmata.message.ProtocolVersionMessage;
 import name.antonsmirnov.firmata.serial.ISerial;
 import name.antonsmirnov.firmata.serial.IndepProcessingSerialAdapter;
+import name.antonsmirnov.firmata.IFirmata;
+import name.antonsmirnov.firmata.wrapper.MessagesHistoryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import processing.serial.IndepProcessingSerial;
@@ -22,7 +24,7 @@ public abstract class BaseHardwareTest extends TestCase {
 
     protected ISerial serial;
     protected Firmata firmata;
-    protected MessagesHistoryFirmataWrapper historyFirmataWrapper;
+    protected MessagesHistoryWrapper historyFirmataWrapper;
     protected InitListener initListener;
 
     @Override
@@ -30,7 +32,7 @@ public abstract class BaseHardwareTest extends TestCase {
         IndepProcessingSerial serialImpl = new IndepProcessingSerial(PORT, BAUD_RATE);
         serial = new IndepProcessingSerialAdapter(serialImpl);
         firmata = new Firmata(serial);
-        historyFirmataWrapper = new MessagesHistoryFirmataWrapper(firmata);
+        historyFirmataWrapper = new MessagesHistoryWrapper(firmata);
         initListener = new InitListener(new InitListener.Listener() {
             public void onInitialized() {
                 log.info("Initialized");

@@ -108,12 +108,24 @@ public class BytesHelper {
      * Encode string - every byte goes to LSB(byte), MSB(byte)
      *
      * @param data string data
-     * @return encoded bytes arrray
+     * @return encoded bytes array
      */
     public static byte[] ENCODE_STRING(String data) {
         byte[] original_data = data.getBytes();
         byte[] encoded_data = new byte[original_data.length * 2];
         ENCODE_STRING(original_data, ByteBuffer.wrap(encoded_data), 0);
+        return encoded_data;
+    }
+
+    /**
+     * Encode string - every byte goes to LSB(byte), MSB(byte)
+     *
+     * @param data int array data
+     * @return encoded bytes array
+     */
+    public static byte[] ENCODE_INT_ARRAY(int[] data) {
+        byte[] encoded_data = new byte[data.length * 2];
+        ENCODE_STRING(data, ByteBuffer.wrap(encoded_data), 0);
         return encoded_data;
     }
 
@@ -125,6 +137,20 @@ public class BytesHelper {
      * @param offset offset in buffer
      */
     public static void ENCODE_STRING(byte[] original_data, ByteBuffer buffer, int offset) {
+        for (int i=0; i<original_data.length; i++) {
+            buffer.put(offset++, (byte)LSB(original_data[i]));
+            buffer.put(offset++, (byte)MSB(original_data[i]));
+        }
+    }
+
+    /**
+     * Encode string to existing buffer - every byte goes to LSB(byte), MSB(byte)
+     *
+     * @param original_data string data
+     * @param buffer existing buffer
+     * @param offset offset in buffer
+     */
+    public static void ENCODE_STRING(int[] original_data, ByteBuffer buffer, int offset) {
         for (int i=0; i<original_data.length; i++) {
             buffer.put(offset++, (byte)LSB(original_data[i]));
             buffer.put(offset++, (byte)MSB(original_data[i]));
@@ -145,6 +171,10 @@ public class BytesHelper {
         return pin / BITS_IN_BYTE;
     }
 
+    private static int bitMaskHigh(int bit) {
+        return 1 << bit;
+    }
+    
     /**
      * Get mask for port to set pin in HIGH
      *
@@ -152,9 +182,18 @@ public class BytesHelper {
      * @return
      */
     private static int pinMaskHigh(int pinInPort) {
-        return (1 << (pinInPort % BITS_IN_BYTE));
+        return bitMaskHigh(pinInPort);
     }
 
+    private static int bitMaskLow(int bit) {
+        int mask = 0;
+        for (int eachBit = BITS_IN_BYTE-1; eachBit >= 0; eachBit--) {
+            mask |= (eachBit == bit ? 0 : 1);
+            if (eachBit > 0)
+                mask <<= 1;
+        }
+        return mask;
+    }
 
     /**
      * Get mask for port to set pin in LOW
@@ -163,13 +202,7 @@ public class BytesHelper {
      * @return
      */
     private static int pinMaskLow(int pinInPort) {
-        int mask = 0;
-        for (int eachPin = BITS_IN_BYTE-1; eachPin >= 0; eachPin--) {
-            mask |= (eachPin == pinInPort ? 0 : 1);
-            if (eachPin > 0)
-                mask <<= 1;
-        }
-        return mask;
+        return bitMaskLow(pinInPort);
     }
 
     /**
@@ -195,6 +228,14 @@ public class BytesHelper {
             return portValues | pinMaskHigh(pinInPort);
         } else {
             return portValues & pinMaskLow(pinInPort);
+        }
+    }
+
+    public static int setBit(int byteValue, int bit, boolean highLevel) {
+        if (highLevel) {
+            return byteValue | pinMaskHigh(bit);
+        } else {
+            return byteValue & pinMaskLow(bit);
         }
     }
 

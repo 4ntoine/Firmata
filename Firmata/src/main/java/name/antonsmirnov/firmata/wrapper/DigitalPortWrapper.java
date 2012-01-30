@@ -1,5 +1,6 @@
-package name.antonsmirnov.firmata;
+package name.antonsmirnov.firmata.wrapper;
 
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.DigitalMessage;
 import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.serial.SerialException;

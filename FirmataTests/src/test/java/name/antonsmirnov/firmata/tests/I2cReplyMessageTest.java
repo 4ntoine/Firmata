@@ -1,8 +1,8 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.I2cReplyMessage;
-import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.serial.SerialException;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
 import name.antonsmirnov.firmata.writer.SysexMessageWriter;
 import org.junit.Test;
 
@@ -40,9 +40,8 @@ public class I2cReplyMessageTest extends BaseFirmataTest {
         serial.clear();
         feedToFirmata(output);
 
-        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
+        MessageWithProperties actualMessage = historyFirmataWrapper.getLastReceivedMessageWithProperties();
         assertNotNull(actualMessage);
-
-        assertEquals(originalMessage, actualMessage);
+        assertEquals(originalMessage, actualMessage.getMessage());
     }
 }

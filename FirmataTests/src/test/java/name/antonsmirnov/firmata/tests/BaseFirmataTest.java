@@ -2,6 +2,8 @@ package name.antonsmirnov.firmata.tests;
 
 import junit.framework.TestCase;
 import name.antonsmirnov.firmata.*;
+import name.antonsmirnov.firmata.IFirmata;
+import name.antonsmirnov.firmata.wrapper.MessagesHistoryWrapper;
 
 /**
  * Base Firmata Test
@@ -20,7 +22,7 @@ public abstract class BaseFirmataTest extends TestCase {
     // new impl
     protected Firmata impl;
     protected IFirmata firmata;
-    protected MessagesHistoryFirmataWrapper historyFirmataWrapper;
+    protected MessagesHistoryWrapper historyFirmataWrapper;
 
     @Override
     protected void setUp() throws Exception {
@@ -28,7 +30,7 @@ public abstract class BaseFirmataTest extends TestCase {
         originalFirmata = new OriginalFirmata(serial);
 
         impl = new Firmata(serial);
-        historyFirmataWrapper = new MessagesHistoryFirmataWrapper(impl);
+        historyFirmataWrapper = new MessagesHistoryWrapper(impl);
 
         firmata = historyFirmataWrapper;
     }

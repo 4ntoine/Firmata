@@ -3,9 +3,16 @@ package name.antonsmirnov.firmata.tests;
 import junit.framework.TestCase;
 import name.antonsmirnov.firmata.*;
 import name.antonsmirnov.firmata.message.AnalogMessage;
+import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import name.antonsmirnov.firmata.serial.SerialException;
+import name.antonsmirnov.firmata.IFirmata;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
+import name.antonsmirnov.firmata.wrapper.MessagesHistoryWrapper;
+import name.antonsmirnov.firmata.wrapper.PinModeWrapper;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * Tests for firmata wrappers
@@ -18,7 +25,7 @@ public class FirmataWrappersTest extends TestCase {
     // test for PinModeFirmataWrapper
     public void testPinModeWrapper() throws SerialException {
         IFirmata impl = new Firmata(serial);
-        PinModeFirmataWrapper wrapper = new PinModeFirmataWrapper(impl, null);
+        PinModeWrapper wrapper = new PinModeWrapper(impl, null);
         
         final int PIN1 = 1;
         final int MODE1 = SetPinModeMessage.PIN_MODE.OUTPUT.getMode();
@@ -46,7 +53,7 @@ public class FirmataWrappersTest extends TestCase {
     // test for MessagesHistoryFirmataWrapper
     public void testMessageHistoryWrapper() throws SerialException {
         IFirmata impl = new Firmata(serial);
-        MessagesHistoryFirmataWrapper wrapper = new MessagesHistoryFirmataWrapper(impl);
+        MessagesHistoryWrapper wrapper = new MessagesHistoryWrapper(impl);
 
         final int PIN1 = 1;
         final int MODE1 = SetPinModeMessage.PIN_MODE.OUTPUT.getMode();
@@ -63,9 +70,17 @@ public class FirmataWrappersTest extends TestCase {
         AnalogMessage message3 = new AnalogMessage(1, 128);
         wrapper.send(message3);
 
-        assertEquals(3, wrapper.getSentMessages().size());
-        assertTrue(wrapper.getSentMessages().contains(message1));
-        assertTrue(wrapper.getSentMessages().contains(message2));
-        assertTrue(wrapper.getSentMessages().contains(message3));
+        assertEquals(3, wrapper.getMessages().size());
+        assertMessageInHistory(wrapper.getSentMessages(), message1);
+        assertMessageInHistory(wrapper.getSentMessages(), message2);
+        assertMessageInHistory(wrapper.getSentMessages(), message3);
+    }
+
+    private void assertMessageInHistory(List<MessageWithProperties> messages, Message message) {
+        for (MessageWithProperties eachMessage : messages)
+            if (eachMessage.getMessage() == message)
+                return;
+
+        fail("Message not found in history");
     }
 }

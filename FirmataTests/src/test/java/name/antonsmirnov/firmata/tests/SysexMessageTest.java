@@ -1,8 +1,8 @@
 package name.antonsmirnov.firmata.tests;
 
-import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.SysexMessage;
 import name.antonsmirnov.firmata.serial.SerialException;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
 import org.junit.Test;
 
 /**
@@ -21,8 +21,8 @@ public class SysexMessageTest extends BaseFirmataTest {
         serial.clear();
         feedToFirmata(output);
 
-        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
+        MessageWithProperties actualMessage = historyFirmataWrapper.getLastReceivedMessageWithProperties();
         assertNotNull(actualMessage);
-        assertEquals(originalMessage, actualMessage);
+        assertEquals(originalMessage, actualMessage.getMessage());
     }
 }

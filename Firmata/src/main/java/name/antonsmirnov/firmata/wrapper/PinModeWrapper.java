@@ -1,5 +1,6 @@
-package name.antonsmirnov.firmata;
+package name.antonsmirnov.firmata.wrapper;
 
+import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import name.antonsmirnov.firmata.serial.SerialException;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Wrapper which remembers pin modes
  */
-public class PinModeFirmataWrapper implements IFirmata {
+public class PinModeWrapper implements IFirmata {
 
     /**
      * Set pin mode event listener
@@ -49,7 +50,7 @@ public class PinModeFirmataWrapper implements IFirmata {
         return pinsConfig;
     }
 
-    public PinModeFirmataWrapper(IFirmata firmata) {
+    public PinModeWrapper(IFirmata firmata) {
         this(firmata, null);
     }
 
@@ -58,7 +59,7 @@ public class PinModeFirmataWrapper implements IFirmata {
      * @param firmata wrapped firmata
      * @param listener set pin mode event listener
      */
-    public PinModeFirmataWrapper(IFirmata firmata, Listener listener) {
+    public PinModeWrapper(IFirmata firmata, Listener listener) {
         this.firmata = firmata;
         this.listener = listener;
         
