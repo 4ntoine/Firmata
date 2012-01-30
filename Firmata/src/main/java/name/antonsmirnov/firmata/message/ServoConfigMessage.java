@@ -50,11 +50,6 @@ public class ServoConfigMessage extends SysexMessage {
         return angle;
     }
 
-    @Override
-    public String getData() {
-        return new String(new byte[] { (byte)pin, (byte)minPulse, (byte)maxPulse, (byte)angle });
-    }
-
     /**
      * @param angle (degrees)
      */

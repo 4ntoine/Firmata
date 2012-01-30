@@ -78,6 +78,7 @@ public class Firmata implements IFirmata, ISerialListener {
         writers.put(StringSysexMessage.class, sysexMessageWriter);
         writers.put(ReportFirmwareVersionMessage.class, sysexMessageWriter);
         writers.put(ServoConfigMessage.class, new ServoConfigMessageWriter());
+        writers.put(SamplingIntervalMessage.class, new SamplingIntervalMessageWriter());
     }
 
     private static List<IMessageReader> readers;
