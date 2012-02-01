@@ -3,8 +3,6 @@ package name.antonsmirnov.firmata.reader;
 import name.antonsmirnov.firmata.IFirmata;
 import name.antonsmirnov.firmata.message.I2cReplyMessage;
 
-import java.util.Arrays;
-
 import static name.antonsmirnov.firmata.BytesHelper.*;
 
 /**

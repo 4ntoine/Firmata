@@ -1,9 +1,9 @@
 package name.antonsmirnov.firmata.tests;
 
 import name.antonsmirnov.firmata.message.FirmwareVersionMessage;
-import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.ReportFirmwareVersionMessage;
 import name.antonsmirnov.firmata.reader.FirmwareVersionMessageReader;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
 import name.antonsmirnov.firmata.writer.SysexMessageWriter;
 import org.junit.Test;
 
@@ -61,10 +61,10 @@ public class FirmwareVersionMessageTest extends BaseFirmataTest {
         byte[] input = getInput();
         feedToFirmata(input);
 
-        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
+        MessageWithProperties actualMessage = historyFirmataWrapper.getLastReceivedMessageWithProperties();
         assertNotNull(actualMessage);
-        assertEquals(FirmwareVersionMessage.class, actualMessage.getClass());
-        assertEquals(expectedMessage, actualMessage);
+        assertEquals(FirmwareVersionMessage.class, actualMessage.getMessage().getClass());
+        assertEquals(expectedMessage, actualMessage.getMessage());
     }
 
 }

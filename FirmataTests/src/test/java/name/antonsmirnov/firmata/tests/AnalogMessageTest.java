@@ -1,6 +1,5 @@
 package name.antonsmirnov.firmata.tests;
 
-import junit.framework.Assert;
 import name.antonsmirnov.firmata.message.AnalogMessage;
 import name.antonsmirnov.firmata.message.SetPinModeMessage;
 import name.antonsmirnov.firmata.serial.SerialException;
@@ -51,8 +50,8 @@ public class AnalogMessageTest extends BaseFirmataTest {
                     firmata.onDataReceived(eachByte);
 
                 // compare original command and received command
-                assertNotNull(historyFirmataWrapper.getLastReceivedMessage());
-                Assert.assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessage());
+                assertNotNull(historyFirmataWrapper.getLastReceivedMessageWithProperties());
+                assertEquals(outcomingMessage, historyFirmataWrapper.getLastReceivedMessageWithProperties().getMessage());
             }
     }
 }

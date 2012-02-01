@@ -1,7 +1,7 @@
 package name.antonsmirnov.firmata.tests;
 
-import name.antonsmirnov.firmata.message.Message;
 import name.antonsmirnov.firmata.message.ProtocolVersionMessage;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
 import name.antonsmirnov.firmata.writer.ReportProtocolVersionMessageWriter;
 import org.junit.Test;
 
@@ -22,8 +22,8 @@ public class ProtocolVersionMessageTest extends BaseFirmataTest {
 
         feedToFirmata(input);
 
-        Message actualMessage = historyFirmataWrapper.getLastReceivedMessage();
+        MessageWithProperties actualMessage = historyFirmataWrapper.getLastReceivedMessageWithProperties();
         assertNotNull(actualMessage);
-        assertEquals(expectedMessage, actualMessage);
+        assertEquals(expectedMessage, actualMessage.getMessage());
     }
 }

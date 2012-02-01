@@ -1,6 +1,7 @@
 package name.antonsmirnov.firmata;
 
 import name.antonsmirnov.firmata.message.Message;
+import name.antonsmirnov.firmata.wrapper.MessagesHistoryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +14,10 @@ public class FirmataWaiter {
     
     private final int WAIT_INCREMENT = 1;  // ms
     
-    private MessagesHistoryFirmataWrapper firmata;
+    private MessagesHistoryWrapper firmata;
 
     public FirmataWaiter(IFirmata firmata) {
-        this.firmata = new MessagesHistoryFirmataWrapper(firmata);
+        this.firmata = new MessagesHistoryWrapper(firmata);
     }
 
     private int waited;
@@ -36,14 +37,14 @@ public class FirmataWaiter {
                 throw new RuntimeException(e);
             }
 
-            if (firmata.getLastReceivedMessage() == null
+            if (firmata.getLastReceivedMessageWithProperties() == null
                 ||
                 (
-                    firmata.getLastReceivedMessage() != null
+                    firmata.getLastReceivedMessageWithProperties() != null
                     &&
                     messageClass != null
                     &&
-                    !firmata.getLastReceivedMessage().getClass().equals(messageClass)
+                    !firmata.getLastReceivedMessageWithProperties().getMessage().getClass().equals(messageClass)
                 )) {
                 waited += WAIT_INCREMENT;
                 if (waited > wait)

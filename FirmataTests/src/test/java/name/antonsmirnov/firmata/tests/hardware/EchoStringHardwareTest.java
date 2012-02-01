@@ -4,6 +4,7 @@ import name.antonsmirnov.firmata.FirmataWaiter;
 import name.antonsmirnov.firmata.WaitException;
 import name.antonsmirnov.firmata.message.StringSysexMessage;
 import name.antonsmirnov.firmata.serial.SerialException;
+import name.antonsmirnov.firmata.wrapper.MessageWithProperties;
 import org.junit.Test;
 
 /**
@@ -19,7 +20,7 @@ public class EchoStringHardwareTest extends BaseHardwareTest {
         firmata.send(new StringSysexMessage(STRING));
         new FirmataWaiter(firmata).waitSeconds(10, StringSysexMessage.class);
 
-        StringSysexMessage message = (StringSysexMessage) historyFirmataWrapper.getLastReceivedMessage();
-        assertEquals(STRING, message.getData());
+        MessageWithProperties message = historyFirmataWrapper.getLastReceivedMessageWithProperties();
+        assertEquals(STRING, ((StringSysexMessage) message.getMessage()).getData());
     }
 }
