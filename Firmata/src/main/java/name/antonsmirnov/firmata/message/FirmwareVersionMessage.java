@@ -66,6 +66,6 @@ public class FirmwareVersionMessage extends SysexMessage {
 
     @Override
     public String toString() {
-        return MessageFormat.format("FirmwareVersionMessage[major={0}, minor={1}, name={2}]", major, minor, name);
+        return MessageFormat.format("FirmwareVersionMessage[major={0}, minor={1}, name=''{2}'']", major, minor, name);
     }
 }

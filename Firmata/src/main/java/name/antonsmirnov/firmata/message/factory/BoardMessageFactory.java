@@ -33,6 +33,13 @@ public abstract class BoardMessageFactory implements MessageFactory {
         return analogOutPins;
     }
     
+    protected static int[] union(int[] array1, int[] array2) {
+        int[] array = new int[array1.length + array2.length];
+        System.arraycopy(array1, 0, array, 0, array1.length);
+        System.arraycopy(array2, 0, array, array1.length, array2.length);
+        return array;
+    }
+    
     protected static int[] arrayFromTo(int from, int to) {
         int[] array = new int[to - from + 1];
         for (int i=0; i<array.length; i++) {

@@ -1,5 +1,7 @@
 package name.antonsmirnov.firmata.message;
 
+import name.antonsmirnov.firmata.FormatHelper;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 
@@ -68,8 +70,11 @@ public class I2cReplyMessage extends SysexMessage {
                 );
     }
 
+    protected static FormatHelper formatHelper = new FormatHelper();
+
     @Override
     public String toString() {
-        return MessageFormat.format("ReportI2cMessage[slaveAddress={0}, register={1}, binaryData={2}]", slaveAddress, register, binaryData);
+        return MessageFormat.format("I2cReplyMessage[slaveAddress={0}, register={1}, binaryData={2}]",
+            formatHelper.formatBinary(slaveAddress), register, formatHelper.formatBinaryData(binaryData));
     }
 }

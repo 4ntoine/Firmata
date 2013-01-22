@@ -12,7 +12,7 @@ public class FirmataWaiter {
 
     private Logger log = LoggerFactory.getLogger(getClass());
     
-    private final int WAIT_INCREMENT = 1;  // ms
+    private final int WAIT_INCREMENT = 10;  // ms
     
     private MessagesHistoryWrapper firmata;
 

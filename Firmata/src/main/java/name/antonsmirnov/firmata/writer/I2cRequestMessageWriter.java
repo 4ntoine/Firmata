@@ -4,23 +4,20 @@ import name.antonsmirnov.firmata.message.I2cRequestMessage;
 import name.antonsmirnov.firmata.serial.ISerial;
 import name.antonsmirnov.firmata.serial.SerialException;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import static name.antonsmirnov.firmata.BytesHelper.*;
 
 /**
  * MessageWriter for I2cRequestMessage
  */
-public class I2cRequestMessageWriter extends SysexMessageWriter<I2cRequestMessage> {
+public class I2cRequestMessageWriter<ConcreteRequestMessage extends I2cRequestMessage> extends SysexMessageWriter<ConcreteRequestMessage> {
 
     @Override
-    protected void writeData(I2cRequestMessage message, ISerial serial) throws SerialException {
+    protected void writeData(ConcreteRequestMessage message, ISerial serial) throws SerialException {
         // can not use super.writeData() because it works with String
         writeI2cRequestData(message, serial);
     }
 
-    private void writeI2cRequestData(I2cRequestMessage message, ISerial serial) throws SerialException {
+    private void writeI2cRequestData(ConcreteRequestMessage message, ISerial serial) throws SerialException {
         byte[] buffer = new byte[2];
 
         buffer[0] = (byte)LSB(message.getSlaveAddress());
@@ -40,8 +37,10 @@ public class I2cRequestMessageWriter extends SysexMessageWriter<I2cRequestMessag
         buffer[1] = (byte)modeByte;
         serial.write(buffer);
 
-        byte[] dataBuffer = ENCODE_INT_ARRAY(message.getBinaryData());
-        serial.write(dataBuffer);
+        int[] binaryData = message.getBinaryData();
+        if (binaryData != null) {
+            byte[] dataBuffer = ENCODE_INT_ARRAY(binaryData);
+            serial.write(dataBuffer);
+        }
     }
-
 }

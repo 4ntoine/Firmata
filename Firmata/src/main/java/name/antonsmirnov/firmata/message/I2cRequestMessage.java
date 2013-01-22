@@ -1,5 +1,7 @@
 package name.antonsmirnov.firmata.message;
 
+import name.antonsmirnov.firmata.FormatHelper;
+
 import java.text.MessageFormat;
 
 /**
@@ -91,12 +93,15 @@ public class I2cRequestMessage extends SysexMessage {
         return binaryData;
     }
 
+    protected static FormatHelper formatHelper = new FormatHelper();
+
     public void setBinaryData(int[] binaryData) {
         this.binaryData = binaryData;
     }
 
     @Override
     public String toString() {
-        return MessageFormat.format("I2cRequestMessage[slaveAddress={0}, 10bitsMode={1}, mode={2}, binaryData={3}]", slaveAddress, tenBitsMode, mode, binaryData);
+        return MessageFormat.format("I2cRequestMessage[slaveAddress={0}, 10bitsMode={1}, mode={2}, binaryData={3}]",
+            formatHelper.formatBinary(slaveAddress), tenBitsMode, mode, (binaryData != null ? formatHelper.formatBinaryData(binaryData) : "null"));
     }
 }

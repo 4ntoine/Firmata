@@ -19,7 +19,7 @@ public abstract class BaseHardwareTest extends TestCase {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
     
-    public static final String PORT = "COM14";
+    public static final String PORT = "COM10";
     public static final int BAUD_RATE = 57600;
 
     protected ISerial serial;

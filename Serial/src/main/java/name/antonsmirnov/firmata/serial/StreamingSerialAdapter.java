@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class StreamingSerialAdapter implements ISerial {
 
-    private InputStream inStream;
-    private OutputStream outStream;
+    private transient InputStream inStream;
+    private transient OutputStream outStream;
 
     public InputStream getInStream() {
         return inStream;

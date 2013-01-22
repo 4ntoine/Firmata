@@ -26,30 +26,30 @@ public class I2cRequestMessageTest extends BaseFirmataTest {
         firmata.send(message);
 
         byte[] expected_output = new byte[] {
-                (byte)SysexMessageWriter.COMMAND_START,
-                (byte)I2cRequestMessage.COMMAND,
+            (byte)SysexMessageWriter.COMMAND_START,
+            (byte)I2cRequestMessage.COMMAND,
 
-                // interval
-                (byte)LSB(7),
-                modeByte,
+            // slave address
+            (byte)LSB(7),
+            modeByte,
 
-                // data byte 1
-                (byte)10,
-                (byte)0,
+            // data byte 1
+            (byte)10,
+            (byte)0,
 
-                // data byte 2
-                (byte)20,
-                (byte)0,
+            // data byte 2
+            (byte)20,
+            (byte)0,
 
-                // data byte 3
-                (byte)30,
-                (byte)0,
+            // data byte 3
+            (byte)30,
+            (byte)0,
 
-                // data byte 4
-                (byte)44,
-                (byte)2,
+            // data byte 4
+            (byte)44,
+            (byte)2,
 
-                (byte)SysexMessageWriter.COMMAND_END
+            (byte)SysexMessageWriter.COMMAND_END
         };
         byte[] actual_output = serial.getOutputStream().toByteArray();
 

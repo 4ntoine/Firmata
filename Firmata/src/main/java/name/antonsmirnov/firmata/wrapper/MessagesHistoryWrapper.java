@@ -5,6 +5,7 @@ import name.antonsmirnov.firmata.message.*;
 import name.antonsmirnov.firmata.serial.SerialException;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Wrapper which remembers sent and received commands
@@ -94,7 +95,7 @@ public class MessagesHistoryWrapper implements IFirmata, IFirmata.Listener {
      * @return messages
      */
     public List<MessageWithProperties> getMessages(IMessageFilter filter) {
-        List<MessageWithProperties> filteredMessages = new ArrayList<MessageWithProperties>();
+        List<MessageWithProperties> filteredMessages = new CopyOnWriteArrayList<MessageWithProperties>();
 
         for (MessageWithProperties eachMessage : messages)
             if (filter.isAllowed(eachMessage))

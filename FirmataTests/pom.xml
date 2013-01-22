@@ -12,7 +12,7 @@
 
     <groupId>name.antonsmirnov.firmata</groupId>
     <artifactId>FirmataTests</artifactId>
-    <version>2.3</version>
+    <version>2.4</version>
     <name>FirmataTests</name>
 
     <developers>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>name.antonsmirnov.firmata</groupId>
 			<artifactId>Firmata</artifactId>
-			<version>2.5</version>
+			<version>2.6</version>
         </dependency>
 
         <!-- test -->
